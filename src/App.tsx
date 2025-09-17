@@ -205,6 +205,7 @@ function App() {
             <RightSidebar
               isChatOpen={isChatOpen}
               onChatToggle={() => setIsChatOpen(!isChatOpen)}
+              onOpenAlerts={() => setIsAlertsDrawerOpen(true)}
             />
           </div>
         </div>

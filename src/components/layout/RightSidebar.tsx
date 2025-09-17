@@ -12,9 +12,14 @@ import { ChatIcon } from "../chat";
 interface RightSidebarProps {
   isChatOpen: boolean;
   onChatToggle: () => void;
+  onOpenAlerts?: () => void;
 }
 
-export function RightSidebar({ isChatOpen, onChatToggle }: RightSidebarProps) {
+export function RightSidebar({
+  isChatOpen,
+  onChatToggle,
+  onOpenAlerts,
+}: RightSidebarProps) {
   return (
     <aside className="w-full flex flex-col p-3 lg:p-4 space-y-3 lg:space-y-4">
       {/* Profile Strength Card */}
@@ -107,22 +112,33 @@ export function RightSidebar({ isChatOpen, onChatToggle }: RightSidebarProps) {
         </div>
       </div>
 
-      {/* First Session Card */}
-      <div className="bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl p-3 lg:p-4 shadow-lg hover:shadow-xl transition-shadow">
+      {/* PRD: Alert Preview Card (click to open header alerts drawer) */}
+      <button
+        onClick={onOpenAlerts}
+        className="text-left bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl p-3 lg:p-4 shadow-lg hover:shadow-xl transition-shadow">
         <div className="flex items-center justify-between mb-1 lg:mb-2">
           <h3 className="text-xs lg:text-sm font-semibold text-gray-900">
-            Complete Your 1st Sessi...
+            LP Margin Alert
           </h3>
-          <ArrowRight className="w-3 h-3 lg:w-4 lg:h-4 text-gray-400" />
-        </div>
-        <div className="flex items-center gap-1 lg:gap-2 mb-1 lg:mb-2">
-          <div className="w-2 h-2 lg:w-3 lg:h-3 bg-orange-500 rounded-full"></div>
-          <span className="text-[10px] lg:text-xs text-gray-600">
-            Unlock other milestones
+          <span className="px-2 py-0.5 rounded-full text-[10px] lg:text-xs font-semibold border bg-red-100 text-red-800 border-red-200">
+            CRITICAL
           </span>
         </div>
-        <div className="text-[10px] lg:text-xs text-gray-500">0/1</div>
-      </div>
+        <div className="text-[10px] lg:text-xs text-gray-600 mb-2">
+          10:05 AM
+        </div>
+        <div className="text-[11px] lg:text-xs text-gray-800 mb-2">
+          <span className="font-medium">LP_A</span> Margin Level at 91%
+          (Threshold: 90%)
+        </div>
+        <div className="text-[11px] lg:text-xs text-gray-800">
+          <span className="font-semibold">AI Analysis & Suggestion:</span>
+          <div className="mt-1">
+            Priority 1: Clear cross-LP hedge on EURUSD (80 lots) with LP_B.
+            Expected to release $96k margin.
+          </div>
+        </div>
+      </button>
 
       {/* AI Chat Icon */}
       {/* <ChatIcon isOpen={isChatOpen} onClick={onChatToggle} /> */}
