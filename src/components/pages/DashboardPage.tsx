@@ -9,14 +9,46 @@ import {
   FileText,
 } from "lucide-react";
 import { AIChatArea } from "../app/AIChatArea";
+import { ChatReportCard } from "../app/ChatReportCard";
 import { MarginCheckCard } from "../app/MarginCheckCard";
+import { mockMarginReport } from "@/data/mockData";
 
 interface DashboardPageProps {
   onQuickCheck?: () => void;
+  onChatSend?: (message: string) => void;
 }
 
-export function DashboardPage({ onQuickCheck }: DashboardPageProps) {
+export function DashboardPage({
+  onQuickCheck,
+  onChatSend,
+}: DashboardPageProps) {
   const [selectedSuggestion, setSelectedSuggestion] = React.useState<string>();
+  const [chatMessages, setChatMessages] = React.useState<
+    { role: "user" | "assistant"; text: string; reportHtml?: React.ReactNode }[]
+  >([]);
+  const [sessions, setSessions] = React.useState<
+    {
+      id: string;
+      title: string;
+      lastAt?: string;
+      messages: {
+        role: "user" | "assistant";
+        text: string;
+        reportHtml?: React.ReactNode;
+      }[];
+    }[]
+  >([
+    {
+      id: "s-1",
+      title: "Welcome",
+      lastAt: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      messages: [],
+    },
+  ]);
+  const [activeSessionId, setActiveSessionId] = React.useState<string>("s-1");
 
   const suggestions = [
     "Need help with LP margin risk analysis",
@@ -77,9 +109,136 @@ export function DashboardPage({ onQuickCheck }: DashboardPageProps) {
     setSelectedSuggestion(suggestion);
   };
 
-  const handleSendMessage = (message: string) => {
-    console.log("AI Message:", message);
+  const handleSendMessage = async (message: string) => {
+    // append user message
+    setChatMessages((prev) => [...prev, { role: "user", text: message }]);
+    // trigger app handler (which may open modal)
+    onChatSend?.(message);
+    // naive assistant ack for demo
+    setChatMessages((prev) => [
+      ...prev,
+      { role: "assistant", text: "Received. Generating LP margin report..." },
+    ]);
+
+    // update session store
+    setSessions((prev) =>
+      prev.map((s) =>
+        s.id === activeSessionId
+          ? {
+              ...s,
+              lastAt: new Date().toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
+              messages: [
+                ...s.messages,
+                { role: "user", text: message },
+                {
+                  role: "assistant",
+                  text: "Received. Generating LP margin report...",
+                },
+              ],
+            }
+          : s
+      )
+    );
+
+    // Immediate demo card with mock data (so user sees effect instantly)
+    const lpMatch = message.match(
+      /检查\s*([A-Za-z_-]+)\s*的?保证金|check\s+([A-Za-z_-]+)/i
+    );
+    const lpName = (lpMatch && (lpMatch[1] || lpMatch[2])) || "LMAX";
+    const demoReport = {
+      ...mockMarginReport,
+      title: `${lpName} Margin Report (Demo)`,
+      timestamp: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    };
+    setChatMessages((prev) => [
+      ...prev,
+      {
+        role: "assistant",
+        text: "",
+        reportHtml: (
+          <div className="mt-1">
+            <ChatReportCard report={demoReport} onActionClick={() => {}} />
+          </div>
+        ),
+      },
+    ]);
+    setSessions((prev) =>
+      prev.map((s) =>
+        s.id === activeSessionId
+          ? {
+              ...s,
+              messages: [
+                ...s.messages,
+                {
+                  role: "assistant",
+                  text: "",
+                  reportHtml: (
+                    <div className="mt-1">
+                      <ChatReportCard
+                        report={demoReport}
+                        onActionClick={() => {}}
+                      />
+                    </div>
+                  ),
+                },
+              ],
+            }
+          : s
+      )
+    );
   };
+
+  React.useEffect(() => {
+    const handler = (e: Event) => {
+      const custom = e as CustomEvent;
+      const report = custom.detail;
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          text: "",
+          reportHtml: (
+            <div className="mt-1">
+              <ChatReportCard report={report} onActionClick={() => {}} />
+            </div>
+          ),
+        },
+      ]);
+      setSessions((prev) =>
+        prev.map((s) =>
+          s.id === activeSessionId
+            ? {
+                ...s,
+                messages: [
+                  ...s.messages,
+                  {
+                    role: "assistant",
+                    text: "",
+                    reportHtml: (
+                      <div className="mt-1">
+                        <ChatReportCard
+                          report={report}
+                          onActionClick={() => {}}
+                        />
+                      </div>
+                    ),
+                  },
+                ],
+              }
+            : s
+        )
+      );
+    };
+    window.addEventListener("chat-report-ready", handler as EventListener);
+    return () =>
+      window.removeEventListener("chat-report-ready", handler as EventListener);
+  }, []);
 
   // Handle margin check feature card click events
   const handleFeatureClick = (featureName: string) => {
@@ -126,6 +285,19 @@ export function DashboardPage({ onQuickCheck }: DashboardPageProps) {
           selectedSuggestion={selectedSuggestion}
           onSuggestionSelect={handleSuggestionSelect}
           onSendMessage={handleSendMessage}
+          messages={chatMessages}
+          onNewChat={() => setChatMessages([])}
+          sessions={sessions.map(({ id, title, lastAt }) => ({
+            id,
+            title,
+            lastAt,
+          }))}
+          activeSessionId={activeSessionId}
+          onSelectSession={(id) => {
+            setActiveSessionId(id);
+            const sel = sessions.find((s) => s.id === id);
+            setChatMessages(sel ? sel.messages : []);
+          }}
         />
       </div>
 

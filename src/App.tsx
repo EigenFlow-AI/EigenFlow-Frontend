@@ -146,10 +146,48 @@ function App() {
     );
   };
 
+  const handleChatSend = async (message: string) => {
+    const intentPattern =
+      /检查\s*([A-Za-z_-]+)\s*的?保证金|check\s+([A-Za-z_-]+)/i;
+    const match = message.match(intentPattern);
+    if (match) {
+      const lp = (match[1] || match[2] || "").trim();
+      if (lp) {
+        const timeout = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Timeout")), 10000)
+        );
+        try {
+          setIsLoading(true);
+          const report = (await Promise.race([
+            MarginCheckApi.getLPReport(lp),
+            timeout,
+          ])) as MarginReport;
+          setMarginReport(report);
+          setIsMarginReportOpen(true);
+          // also push into chat stream via a custom event
+          window.dispatchEvent(
+            new CustomEvent("chat-report-ready", { detail: report })
+          );
+        } catch (e) {
+          console.error("LP report fetch failed:", e);
+        } finally {
+          setIsLoading(false);
+        }
+        return;
+      }
+    }
+    console.log("Message received:", message);
+  };
+
   const renderPage = () => {
     switch (activeView) {
       case "dashboard":
-        return <DashboardPage onQuickCheck={handleQuickCheck} />;
+        return (
+          <DashboardPage
+            onQuickCheck={handleQuickCheck}
+            onChatSend={handleChatSend}
+          />
+        );
       case "margin-check":
         return <MarginCheckPage />;
       case "analytics":
@@ -159,7 +197,12 @@ function App() {
       case "settings":
         return <SettingsPage />;
       default:
-        return <DashboardPage onQuickCheck={handleQuickCheck} />;
+        return (
+          <DashboardPage
+            onQuickCheck={handleQuickCheck}
+            onChatSend={handleChatSend}
+          />
+        );
     }
   };
 

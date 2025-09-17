@@ -1,5 +1,6 @@
 import type { MarginReport } from "@/types";
 import { mockMarginReport } from "@/data/mockData";
+import { mockLPReportData } from "@/data/mockData";
 
 // Simulate API delay
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -102,6 +103,74 @@ export class MarginCheckApi {
           type: "analysis",
         },
       ],
+    };
+  }
+
+  /**
+   * 获取指定LP的保证金报告（基于mock数据）
+   */
+  static async getLPReport(lpNameOrId: string): Promise<MarginReport> {
+    await delay(800);
+    const term = lpNameOrId.trim().toLowerCase();
+    const match = mockLPReportData.find(
+      (lp) => lp.lpName.toLowerCase() === term || lp.lpId.toLowerCase() === term
+    );
+
+    // 基于mockMarginReport生成一份LP专属报告
+    const now = new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    if (match) {
+      const status = match.status;
+      const sections = [
+        {
+          id: "summary",
+          title: `${match.lpName} Margin Summary`,
+          content: `${match.lpName} margin level at ${
+            match.marginLevel
+          }% with equity $${match.equity.toLocaleString()} and margin used $${match.marginUsed.toLocaleString()}.`,
+          type: "summary" as const,
+        },
+        {
+          id: "analysis",
+          title: "Risk Analysis",
+          content: `Positions: ${match.positions
+            .map((p) => `${p.symbol} ${p.side} ${p.size} lots`)
+            .join("; ")}.`,
+          type: "analysis" as const,
+        },
+        {
+          id: "recommendations",
+          title: "AI Recommendations",
+          content:
+            status === "critical"
+              ? "(P0) Reduce high-risk exposure and consider clearing cross-LP hedges."
+              : status === "warn"
+              ? "(P1) Monitor margin closely and optimize positions if pressure increases."
+              : "(P2) Margin is healthy. Continue monitoring.",
+          type: "recommendation" as const,
+        },
+      ];
+
+      return {
+        ...mockMarginReport,
+        cardId: `lp_${match.lpId}_${Date.now()}`,
+        title: `${match.lpName} Margin Report`,
+        timestamp: now,
+        status,
+        avgMarginLevel: match.marginLevel,
+        lpCount: 1,
+        sections,
+      };
+    }
+
+    // 未匹配时返回通用报告
+    return {
+      ...mockMarginReport,
+      cardId: `lp_unknown_${Date.now()}`,
+      title: `Margin Report`,
+      timestamp: now,
     };
   }
 
