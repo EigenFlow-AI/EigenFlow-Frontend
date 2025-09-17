@@ -125,7 +125,7 @@ export function RightSidebar({ isChatOpen, onChatToggle }: RightSidebarProps) {
       </div>
 
       {/* AI Chat Icon */}
-      <ChatIcon isOpen={isChatOpen} onClick={onChatToggle} />
+      {/* <ChatIcon isOpen={isChatOpen} onClick={onChatToggle} /> */}
     </aside>
   );
 }

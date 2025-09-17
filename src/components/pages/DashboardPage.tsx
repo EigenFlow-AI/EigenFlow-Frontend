@@ -8,10 +8,14 @@ import {
   Shield,
   FileText,
 } from "lucide-react";
-import { AIChatArea } from "../ui/AIChatArea";
-import { MarginCheckCard } from "../ui/MarginCheckCard";
+import { AIChatArea } from "../app/AIChatArea";
+import { MarginCheckCard } from "../app/MarginCheckCard";
 
-export function DashboardPage() {
+interface DashboardPageProps {
+  onQuickCheck?: () => void;
+}
+
+export function DashboardPage({ onQuickCheck }: DashboardPageProps) {
   const [selectedSuggestion, setSelectedSuggestion] = React.useState<string>();
 
   const suggestions = [
@@ -84,6 +88,7 @@ export function DashboardPage() {
     switch (featureName) {
       case "Quick Check":
         console.log("Triggering quick margin check...");
+        onQuickCheck?.();
         break;
       case "Real-time Monitor":
         console.log("Opening real-time monitor...");

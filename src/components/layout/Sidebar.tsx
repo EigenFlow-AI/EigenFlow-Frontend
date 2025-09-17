@@ -72,7 +72,7 @@ export function Sidebar({
           className="cursor-pointer">
           <Icon
             className={activeView === "dashboard" ? "active" : ""}
-            label="Dashboard">
+            label="Home">
             <Home className="w-5 h-5" />
           </Icon>
         </div>

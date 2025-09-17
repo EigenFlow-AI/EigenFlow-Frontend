@@ -1,6 +1,6 @@
 import React from "react";
 import { Sparkles, Send } from "lucide-react";
-import { Button } from "./button";
+import { Button } from "@/components/ui/button";
 
 interface AIChatAreaProps {
   suggestions: string[];
