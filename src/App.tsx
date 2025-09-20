@@ -20,18 +20,19 @@ import { AlertMessagesDrawer } from "./components/app/AlertMessagesDrawer";
 import { MarginCheckApi } from "./services/marginCheckApi";
 import { mockAlertMessages } from "./data/mockData";
 import type { ViewType, MarginReport, AlertMessage } from "./types";
+import { useState } from "react";
 
 function App() {
-  const [activeView, setActiveView] = React.useState<ViewType>("dashboard");
+  const [activeView, setActiveView] = useState<ViewType>("dashboard");
   const [isChatOpen, setIsChatOpen] = React.useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   // Margin Check Modal State
-  const [isMarginReportOpen, setIsMarginReportOpen] = React.useState(false);
+  const [isMarginReportOpen, setIsMarginReportOpen] = useState(false);
   const [marginReport, setMarginReport] = React.useState<MarginReport | null>(
     null
   );
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Alert Messages Drawer State
   const [isAlertsDrawerOpen, setIsAlertsDrawerOpen] = React.useState(false);
@@ -188,7 +189,7 @@ function App() {
             onChatSend={handleChatSend}
           />
         );
-      case "margin-check":
+      case "health-center":
         return <MarginCheckPage />;
       case "analytics":
         return <AnalyticsPage />;
@@ -230,7 +231,7 @@ function App() {
         <Sidebar
           activeView={activeView}
           onViewChange={(view) => {
-            setActiveView(view);
+            setActiveView(view as ViewType);
             setIsMobileMenuOpen(false);
           }}
           isMobileMenuOpen={isMobileMenuOpen}

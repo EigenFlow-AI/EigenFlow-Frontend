@@ -11,12 +11,12 @@ import {
 interface SidebarProps {
   activeView:
     | "dashboard"
-    | "margin-check"
+    | "health-center"
     | "analytics"
     | "alerts"
     | "settings";
   onViewChange: (
-    view: "dashboard" | "margin-check" | "analytics" | "alerts" | "settings"
+    view: "dashboard" | "health-center" | "analytics" | "alerts" | "settings"
   ) => void;
   isMobileMenuOpen?: boolean;
 }
@@ -77,11 +77,11 @@ export function Sidebar({
           </Icon>
         </div>
         <div
-          onClick={() => onViewChange("margin-check")}
+          onClick={() => onViewChange("health-center")}
           className="cursor-pointer text-center">
           <Icon
-            className={activeView === "margin-check" ? "active" : ""}
-            label="Margin Check">
+            className={activeView === "health-center" ? "active" : ""}
+            label="Health Center">
             <Shield className="w-5 h-5" />
           </Icon>
         </div>
