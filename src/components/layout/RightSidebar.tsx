@@ -13,12 +13,16 @@ interface RightSidebarProps {
   isChatOpen: boolean;
   onChatToggle: () => void;
   onOpenAlerts?: () => void;
+  latestAlert?: any;
+  onDismissAlert?: (id: string) => void;
 }
 
 export function RightSidebar({
   isChatOpen,
   onChatToggle,
   onOpenAlerts,
+  latestAlert,
+  onDismissAlert,
 }: RightSidebarProps) {
   return (
     <aside className="w-full flex flex-col p-3 lg:p-4 space-y-3 lg:space-y-4">

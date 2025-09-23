@@ -11,12 +11,12 @@ import {
 interface SidebarProps {
   activeView:
     | "dashboard"
-    | "margin-check"
+    | "health-center"
     | "analytics"
     | "alerts"
     | "settings";
   onViewChange: (
-    view: "dashboard" | "margin-check" | "analytics" | "alerts" | "settings"
+    view: "dashboard" | "health-center" | "analytics" | "alerts" | "settings"
   ) => void;
   isMobileMenuOpen?: boolean;
 }
@@ -77,11 +77,20 @@ export function Sidebar({
           </Icon>
         </div>
         <div
-          onClick={() => onViewChange("margin-check")}
-          className="cursor-pointer text-center">
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log(
+              "Health Center clicked, calling onViewChange with health-center"
+            );
+            // alert("Health Center clicked!"); // 添加弹窗测试
+            onViewChange("health-center");
+          }}
+          className="cursor-pointer text-center"
+          style={{ pointerEvents: "auto" }}>
           <Icon
-            className={activeView === "margin-check" ? "active" : ""}
-            label="Margin Check">
+            className={activeView === "health-center" ? "active" : ""}
+            label="Health Center">
             <Shield className="w-5 h-5" />
           </Icon>
         </div>
@@ -90,7 +99,7 @@ export function Sidebar({
           className="cursor-pointer">
           <Icon
             className={activeView === "analytics" ? "active" : ""}
-            label="Analytics">
+            label="Monitor">
             <BarChart3 className="w-5 h-5" />
           </Icon>
         </div>

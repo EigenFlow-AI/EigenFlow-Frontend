@@ -7,31 +7,30 @@ import {
   MobileBottomNav,
 } from "./components/layout";
 import { FloatingChatWindow } from "./components/chat";
-import {
-  DashboardPage,
-  MarginCheckPage,
-  AnalyticsPage,
-  AlertsPage,
-  SettingsPage,
-} from "./components/pages";
+import { DashboardPage } from "./components/pages/DashboardPage";
+import HealthCenter from "./components/pages/HealthCenter";
+import { AnalyticsPage } from "./components/pages/AnalyticsPage";
+import { AlertsPage } from "./components/pages/AlertsPage";
+import { SettingsPage } from "./components/pages/SettingsPage";
 import { MarginReportModal } from "./components/app/MarginReportModal";
 import { AlertCardDialog } from "./components/app/AlertCardDialog";
 import { AlertMessagesDrawer } from "./components/app/AlertMessagesDrawer";
 import { MarginCheckApi } from "./services/marginCheckApi";
 import { mockAlertMessages } from "./data/mockData";
 import type { ViewType, MarginReport, AlertMessage } from "./types";
+import { useState } from "react";
 
 function App() {
-  const [activeView, setActiveView] = React.useState<ViewType>("dashboard");
+  const [activeView, setActiveView] = useState<ViewType>("dashboard");
   const [isChatOpen, setIsChatOpen] = React.useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   // Margin Check Modal State
-  const [isMarginReportOpen, setIsMarginReportOpen] = React.useState(false);
+  const [isMarginReportOpen, setIsMarginReportOpen] = useState(false);
   const [marginReport, setMarginReport] = React.useState<MarginReport | null>(
     null
   );
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Alert Messages Drawer State
   const [isAlertsDrawerOpen, setIsAlertsDrawerOpen] = React.useState(false);
@@ -45,6 +44,10 @@ function App() {
     () => alertMessages.filter((a) => !a.isRead).length,
     [alertMessages]
   );
+  const [latestSidebarAlert, setLatestSidebarAlert] =
+    React.useState<AlertMessage | null>(null);
+  const sidebarQueueRef = React.useRef<AlertMessage[]>([]);
+  const intervalRef = React.useRef<number | null>(null);
 
   // Handle Quick Check
   const handleQuickCheck = async () => {
@@ -146,6 +149,64 @@ function App() {
     );
   };
 
+  // Handle Dismiss Sidebar Alert
+  const handleDismissSidebarAlert = (id: string) => {
+    // remove from center list if desired or just clear latest view
+    setLatestSidebarAlert((curr) => (curr && curr.id === id ? null : curr));
+    // optional: also mark read
+    setAlertMessages((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, isRead: true } : a))
+    );
+    // remove from queue head if matches
+    sidebarQueueRef.current = sidebarQueueRef.current.filter(
+      (a) => a.id !== id
+    );
+  };
+
+  // Mock alert generation effect
+  React.useEffect(() => {
+    // start 10s mock push loop
+    if (intervalRef.current) return;
+    intervalRef.current = window.setInterval(() => {
+      // generate a mock alert up to 10 items total in center
+      setAlertMessages((prev) => {
+        if (prev.length >= 10) return prev; // cap 10
+        const id = `auto_${Date.now()}`;
+        const ts = new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        const newAlert: AlertMessage = {
+          id,
+          lpId: ["LP_A", "LP_B", "LP_C"][Math.floor(Math.random() * 3)],
+          lpName: "Auto",
+          type: "margin_alert",
+          severity:
+            Math.random() > 0.6
+              ? "critical"
+              : Math.random() > 0.5
+              ? "warn"
+              : "ok",
+          title: "LP Margin Alert",
+          message:
+            "Priority 1: Clear cross-LP hedge on EURUSD (80 lots) with LP_B. Expected to release $96k margin.",
+          timestamp: ts,
+          isRead: false,
+          marginLevel: Math.floor(70 + Math.random() * 30),
+          threshold: 90,
+        };
+        // push to sidebar latest
+        sidebarQueueRef.current.push(newAlert);
+        setLatestSidebarAlert(newAlert);
+        return [...prev, newAlert];
+      });
+    }, 10000);
+    return () => {
+      if (intervalRef.current) window.clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    };
+  }, []);
+
   const handleChatSend = async (message: string) => {
     const intentPattern =
       /检查\s*([A-Za-z_-]+)\s*的?保证金|check\s+([A-Za-z_-]+)/i;
@@ -188,8 +249,8 @@ function App() {
             onChatSend={handleChatSend}
           />
         );
-      case "margin-check":
-        return <MarginCheckPage />;
+      case "health-center":
+        return <HealthCenter />;
       case "analytics":
         return <AnalyticsPage />;
       case "alerts":
@@ -230,7 +291,7 @@ function App() {
         <Sidebar
           activeView={activeView}
           onViewChange={(view) => {
-            setActiveView(view);
+            setActiveView(view as ViewType);
             setIsMobileMenuOpen(false);
           }}
           isMobileMenuOpen={isMobileMenuOpen}
@@ -249,6 +310,8 @@ function App() {
               isChatOpen={isChatOpen}
               onChatToggle={() => setIsChatOpen(!isChatOpen)}
               onOpenAlerts={() => setIsAlertsDrawerOpen(true)}
+              latestAlert={latestSidebarAlert}
+              onDismissAlert={handleDismissSidebarAlert}
             />
           </div>
         </div>

@@ -1,7 +1,7 @@
 // View types
 export type ViewType =
   | "dashboard"
-  | "margin-check"
+  | "health-center"
   | "analytics"
   | "alerts"
   | "settings";

@@ -174,7 +174,7 @@ export function AIChatArea({
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="例如：检查 LMAX 的保证金 / check LMAX"
+              placeholder="For example: check LMAX or help me check all LPs"
               className="flex-1 px-3 py-2 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
             />
             <Button onClick={handleSend} size="sm" className="px-3">
