@@ -250,7 +250,7 @@ function App() {
           />
         );
       case "health-center":
-        return <HealthCenter />;
+        return <MarginCheckPage />;
       case "analytics":
         return <AnalyticsPage />;
       case "alerts":

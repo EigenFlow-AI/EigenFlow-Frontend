@@ -77,17 +77,8 @@ export function Sidebar({
           </Icon>
         </div>
         <div
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log(
-              "Health Center clicked, calling onViewChange with health-center"
-            );
-            // alert("Health Center clicked!"); // 添加弹窗测试
-            onViewChange("health-center");
-          }}
-          className="cursor-pointer text-center"
-          style={{ pointerEvents: "auto" }}>
+          onClick={() => onViewChange("health-center")}
+          className="cursor-pointer text-center">
           <Icon
             className={activeView === "health-center" ? "active" : ""}
             label="Health Center">
