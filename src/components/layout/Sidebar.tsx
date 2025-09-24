@@ -3,8 +3,8 @@ import {
   Home,
   Shield,
   BarChart3,
-  Bell,
-  Settings,
+  Activity,
+  Gauge,
   MoreHorizontal,
 } from "lucide-react";
 
@@ -94,11 +94,13 @@ export function Sidebar({
             <BarChart3 className="w-5 h-5" />
           </Icon>
         </div>
-        <div onClick={() => onViewChange("alerts")} className="cursor-pointer">
+        <div
+          onClick={() => onViewChange("alerts")}
+          className="cursor-pointer text-center">
           <Icon
             className={activeView === "alerts" ? "active" : ""}
-            label="Alerts">
-            <Bell className="w-5 h-5" />
+            label="Config Center">
+            <Activity className="w-5 h-5" />
           </Icon>
         </div>
         <div
@@ -106,8 +108,8 @@ export function Sidebar({
           className="cursor-pointer">
           <Icon
             className={activeView === "settings" ? "active" : ""}
-            label="Settings">
-            <Settings className="w-5 h-5" />
+            label="Dashboard">
+            <Gauge className="w-5 h-5" />
           </Icon>
         </div>
         <div className="cursor-pointer">

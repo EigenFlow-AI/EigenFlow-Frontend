@@ -9,8 +9,8 @@ import {
 import { FloatingChatWindow } from "./components/chat";
 import { DashboardPage } from "./components/pages/DashboardPage";
 import HealthCenter from "./components/pages/HealthCenter";
-import { AnalyticsPage } from "./components/pages/AnalyticsPage";
-import { AlertsPage } from "./components/pages/AlertsPage";
+import { AnalyticsPage } from "./components/pages/MonitorPage";
+import { ConfigPage } from "./components/pages/ConfigPage";
 import { SettingsPage } from "./components/pages/SettingsPage";
 import { MarginReportModal } from "./components/app/MarginReportModal";
 import { AlertCardDialog } from "./components/app/AlertCardDialog";
@@ -250,11 +250,11 @@ function App() {
           />
         );
       case "health-center":
-        return <MarginCheckPage />;
+        return <HealthCenter />;
       case "analytics":
         return <AnalyticsPage />;
       case "alerts":
-        return <AlertsPage />;
+        return <ConfigPage />;
       case "settings":
         return <SettingsPage />;
       default:
@@ -301,7 +301,7 @@ function App() {
         <div className="flex flex-1 min-h-0">
           {/* Main Content */}
           <main className="flex-1 p-3 sm:p-4 lg:p-6 overflow-y-auto max-w-full pb-20 lg:pb-6">
-            <div className="max-w-7xl mx-auto">{renderPage()}</div>
+            <div className="w-full mx-auto">{renderPage()}</div>
           </main>
 
           {/* Right Sidebar - Responsive visibility */}
