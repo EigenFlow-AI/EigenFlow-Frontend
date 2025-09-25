@@ -33,7 +33,7 @@ function Icon({ children, className, label, badge }: IconProps) {
     <div className="flex flex-col items-center gap-1">
       <div
         className={`w-12 h-12 flex items-center justify-center rounded-xl text-foreground cursor-pointer hover:bg-foreground/8 transition-colors relative ${
-          className === "active" ? "bg-green-100 text-green-600" : ""
+          className === "active" ? "bg-violet-100 text-violet-600" : ""
         }`}>
         {children}
         {badge && (

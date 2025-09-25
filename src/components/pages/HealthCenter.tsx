@@ -464,7 +464,7 @@ export default function HealthCenter() {
                     Symbol
                   </th>
                   <th className="text-left py-3 px-2 font-medium text-gray-700">
-                    PK Position (Taker)
+                    MT4/MT5 (Taker)
                   </th>
                   <th className="text-left py-3 px-2 font-medium text-gray-700">
                     LP1 (LMAX)
