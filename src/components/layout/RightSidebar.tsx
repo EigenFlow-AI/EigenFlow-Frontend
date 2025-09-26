@@ -1,13 +1,4 @@
-import React from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Calendar,
-  Gift,
-  Leaf,
-  ArrowRight,
-} from "lucide-react";
-import { ChatIcon } from "../chat";
+import { ChevronLeft, ChevronRight, Calendar, Gift, Leaf } from "lucide-react";
 
 interface RightSidebarProps {
   isChatOpen: boolean;
@@ -17,13 +8,7 @@ interface RightSidebarProps {
   onDismissAlert?: (id: string) => void;
 }
 
-export function RightSidebar({
-  isChatOpen,
-  onChatToggle,
-  onOpenAlerts,
-  latestAlert,
-  onDismissAlert,
-}: RightSidebarProps) {
+export function RightSidebar({ onOpenAlerts }: RightSidebarProps) {
   return (
     <aside className="w-full flex flex-col p-3 lg:p-4 space-y-3 lg:space-y-4">
       {/* Profile Strength Card */}
