@@ -8,15 +8,7 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { type AlertMessage, type StatusType } from "@/types";
-import {
-  AlertTriangle,
-  XCircle,
-  CheckCircle,
-  Clock,
-  TrendingUp,
-  Wifi,
-  Shield,
-} from "lucide-react";
+import { Clock, TrendingUp, Wifi, Shield } from "lucide-react";
 
 interface AlertMessagesDrawerProps {
   isOpen: boolean;
@@ -25,19 +17,6 @@ interface AlertMessagesDrawerProps {
   onAlertAction: (alertId: string, actionId: string) => void;
   onMarkAsRead: (alertId: string) => void;
 }
-
-const getSeverityIcon = (severity: StatusType) => {
-  switch (severity) {
-    case "ok":
-      return <CheckCircle className="w-4 h-4 text-green-600" />;
-    case "warn":
-      return <AlertTriangle className="w-4 h-4 text-yellow-600" />;
-    case "critical":
-      return <XCircle className="w-4 h-4 text-red-600" />;
-    default:
-      return <Clock className="w-4 h-4 text-gray-600" />;
-  }
-};
 
 const getSeverityColor = (severity: StatusType) => {
   switch (severity) {
@@ -85,7 +64,6 @@ export function AlertMessagesDrawer({
   onClose,
   alerts,
   onAlertAction,
-  onMarkAsRead,
 }: AlertMessagesDrawerProps) {
   const unreadCount = alerts.filter((alert) => !alert.isRead).length;
 

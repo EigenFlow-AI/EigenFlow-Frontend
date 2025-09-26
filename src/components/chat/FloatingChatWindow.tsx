@@ -1,4 +1,3 @@
-import React from "react";
 import { Bot, XCircle } from "lucide-react";
 import { ChatInterface } from "./ChatInterface";
 

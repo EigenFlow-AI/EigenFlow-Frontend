@@ -1,4 +1,3 @@
-import React from "react";
 import { Bot, User as UserIcon } from "lucide-react";
 
 interface ChatMessageProps {

@@ -1,4 +1,3 @@
-import React from "react";
 import type { MarginReport, StatusType } from "@/types";
 
 interface ChatReportCardProps {

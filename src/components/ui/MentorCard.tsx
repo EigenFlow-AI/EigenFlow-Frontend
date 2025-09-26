@@ -1,4 +1,3 @@
-import React from "react";
 import { Star, Clock } from "lucide-react";
 
 interface MentorCardProps {

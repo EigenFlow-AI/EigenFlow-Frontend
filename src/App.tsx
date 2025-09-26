@@ -7,11 +7,11 @@ import {
   MobileBottomNav,
 } from "./components/layout";
 import { FloatingChatWindow } from "./components/chat";
-import { DashboardPage } from "./components/pages/DashboardPage";
+import { HomePage } from "./components/pages/HomePage";
 import HealthCenter from "./components/pages/HealthCenter";
 import { AnalyticsPage } from "./components/pages/MonitorPage";
 import { ConfigPage } from "./components/pages/ConfigPage";
-import { SettingsPage } from "./components/pages/SettingsPage";
+import Dashboard from "./components/pages/DashboardPage";
 import { MarginReportModal } from "./components/app/MarginReportModal";
 import { AlertCardDialog } from "./components/app/AlertCardDialog";
 import { AlertMessagesDrawer } from "./components/app/AlertMessagesDrawer";
@@ -244,7 +244,7 @@ function App() {
     switch (activeView) {
       case "dashboard":
         return (
-          <DashboardPage
+          <HomePage
             onQuickCheck={handleQuickCheck}
             onChatSend={handleChatSend}
           />
@@ -256,10 +256,10 @@ function App() {
       case "alerts":
         return <ConfigPage />;
       case "settings":
-        return <SettingsPage />;
+        return <Dashboard />;
       default:
         return (
-          <DashboardPage
+          <HomePage
             onQuickCheck={handleQuickCheck}
             onChatSend={handleChatSend}
           />

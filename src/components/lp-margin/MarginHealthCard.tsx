@@ -1,4 +1,3 @@
-import React from "react";
 import { CheckCircle, AlertTriangle, XCircle, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
