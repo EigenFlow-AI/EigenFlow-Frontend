@@ -25,14 +25,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export function AnalyticsPage() {
   const [isAddAlertOpen, setIsAddAlertOpen] = useState(false);
+  const [selectedAlertType, setSelectedAlertType] = useState<string>("");
+  const [alertThreshold, setAlertThreshold] = useState<string>("");
   const [activeAlerts, setActiveAlerts] = useState<
     Array<{
       id: string;
       type: string;
       name: string;
+      threshold: string;
       status: "active" | "triggered" | "paused";
       createdAt: Date;
     }>
@@ -43,41 +48,62 @@ export function AnalyticsPage() {
       id: "pnl_loss",
       name: "P&L Loss Alert",
       description: "Alert when P&L drops below threshold",
+      unit: "USD",
+      placeholder: "e.g. -5000",
     },
     {
       id: "exposure_limit",
       name: "Exposure Limit Alert",
       description: "Alert when exposure exceeds limit",
+      unit: "USD",
+      placeholder: "e.g. 100000",
     },
     {
       id: "position_size",
       name: "Position Size Alert",
       description: "Alert when position size is too large",
+      unit: "Lots",
+      placeholder: "e.g. 10",
     },
     {
       id: "margin_call",
       name: "Margin Call Alert",
       description: "Alert when margin requirements are not met",
+      unit: "%",
+      placeholder: "e.g. 80",
     },
     {
       id: "volatility",
       name: "Volatility Alert",
       description: "Alert when market volatility is high",
+      unit: "%",
+      placeholder: "e.g. 5",
     },
   ];
 
-  const handleAddAlert = (alertType: string) => {
-    const selectedAlert = alertTypes.find((alert) => alert.id === alertType);
+  const handleAddAlert = () => {
+    if (!selectedAlertType || !alertThreshold.trim()) {
+      return;
+    }
+
+    const selectedAlert = alertTypes.find(
+      (alert) => alert.id === selectedAlertType
+    );
     if (selectedAlert) {
       const newAlert = {
         id: Date.now().toString(),
-        type: alertType,
+        type: selectedAlertType,
         name: selectedAlert.name,
+        threshold: alertThreshold,
         status: "active" as const,
         createdAt: new Date(),
       };
       setActiveAlerts((prev) => [...prev, newAlert]);
     }
+
+    // Reset form
+    setSelectedAlertType("");
+    setAlertThreshold("");
     setIsAddAlertOpen(false);
   };
 
@@ -206,108 +232,172 @@ export function AnalyticsPage() {
                     Add New Alert
                   </DialogTitle>
                   <DialogDescription>
-                    Choose an alert type to monitor your trading positions and
-                    risk levels.
+                    Choose an alert type and set the threshold value to monitor
+                    your trading positions and risk levels.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="grid gap-3 py-4">
-                  {alertTypes.map((alert) => (
-                    <button
-                      key={alert.id}
-                      onClick={() => handleAddAlert(alert.id)}
-                      className="p-4 text-left border rounded-lg hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors group">
-                      <div className="flex items-center gap-3">
-                        {alert.id === "pnl_loss" && (
-                          <div className="p-2 rounded-full bg-red-100 dark:bg-red-900/20 group-hover:bg-red-200 dark:group-hover:bg-red-900/40">
-                            <svg
-                              className="w-5 h-5 text-red-600 dark:text-red-400"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24">
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"
-                              />
-                            </svg>
+                <div className="space-y-6 py-4">
+                  {/* Alert Type Selection */}
+                  <div className="space-y-3">
+                    <Label className="text-base font-medium">Alert Type</Label>
+                    <div className="grid gap-3">
+                      {alertTypes.map((alert) => (
+                        <button
+                          key={alert.id}
+                          onClick={() => setSelectedAlertType(alert.id)}
+                          className={`p-4 text-left border rounded-lg transition-colors group ${
+                            selectedAlertType === alert.id
+                              ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                              : "border-gray-200 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                          }`}>
+                          <div className="flex items-center gap-3">
+                            {alert.id === "pnl_loss" && (
+                              <div className="p-2 rounded-full bg-red-100 dark:bg-red-900/20 group-hover:bg-red-200 dark:group-hover:bg-red-900/40">
+                                <svg
+                                  className="w-5 h-5 text-red-600 dark:text-red-400"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24">
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"
+                                  />
+                                </svg>
+                              </div>
+                            )}
+                            {alert.id === "exposure_limit" && (
+                              <div className="p-2 rounded-full bg-orange-100 dark:bg-orange-900/20 group-hover:bg-orange-200 dark:group-hover:bg-orange-900/40">
+                                <svg
+                                  className="w-5 h-5 text-orange-600 dark:text-orange-400"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24">
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                                  />
+                                </svg>
+                              </div>
+                            )}
+                            {alert.id === "position_size" && (
+                              <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900/20 group-hover:bg-blue-200 dark:group-hover:bg-blue-900/40">
+                                <svg
+                                  className="w-5 h-5 text-blue-600 dark:text-blue-400"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24">
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"
+                                  />
+                                </svg>
+                              </div>
+                            )}
+                            {alert.id === "margin_call" && (
+                              <div className="p-2 rounded-full bg-purple-100 dark:bg-purple-900/20 group-hover:bg-purple-200 dark:group-hover:bg-purple-900/40">
+                                <svg
+                                  className="w-5 h-5 text-purple-600 dark:text-purple-400"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24">
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
+                                  />
+                                </svg>
+                              </div>
+                            )}
+                            {alert.id === "volatility" && (
+                              <div className="p-2 rounded-full bg-yellow-100 dark:bg-yellow-900/20 group-hover:bg-yellow-200 dark:group-hover:bg-yellow-900/40">
+                                <svg
+                                  className="w-5 h-5 text-yellow-600 dark:text-yellow-400"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24">
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                                  />
+                                </svg>
+                              </div>
+                            )}
+                            <div>
+                              <div className="font-medium text-gray-900 dark:text-gray-100">
+                                {alert.name}
+                              </div>
+                              <div className="text-sm text-gray-600 dark:text-gray-400">
+                                {alert.description}
+                              </div>
+                            </div>
                           </div>
-                        )}
-                        {alert.id === "exposure_limit" && (
-                          <div className="p-2 rounded-full bg-orange-100 dark:bg-orange-900/20 group-hover:bg-orange-200 dark:group-hover:bg-orange-900/40">
-                            <svg
-                              className="w-5 h-5 text-orange-600 dark:text-orange-400"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24">
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                              />
-                            </svg>
-                          </div>
-                        )}
-                        {alert.id === "position_size" && (
-                          <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900/20 group-hover:bg-blue-200 dark:group-hover:bg-blue-900/40">
-                            <svg
-                              className="w-5 h-5 text-blue-600 dark:text-blue-400"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24">
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"
-                              />
-                            </svg>
-                          </div>
-                        )}
-                        {alert.id === "margin_call" && (
-                          <div className="p-2 rounded-full bg-purple-100 dark:bg-purple-900/20 group-hover:bg-purple-200 dark:group-hover:bg-purple-900/40">
-                            <svg
-                              className="w-5 h-5 text-purple-600 dark:text-purple-400"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24">
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
-                              />
-                            </svg>
-                          </div>
-                        )}
-                        {alert.id === "volatility" && (
-                          <div className="p-2 rounded-full bg-yellow-100 dark:bg-yellow-900/20 group-hover:bg-yellow-200 dark:group-hover:bg-yellow-900/40">
-                            <svg
-                              className="w-5 h-5 text-yellow-600 dark:text-yellow-400"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24">
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M13 10V3L4 14h7v7l9-11h-7z"
-                              />
-                            </svg>
-                          </div>
-                        )}
-                        <div>
-                          <div className="font-medium text-gray-900 dark:text-gray-100">
-                            {alert.name}
-                          </div>
-                          <div className="text-sm text-gray-600 dark:text-gray-400">
-                            {alert.description}
-                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Threshold Input */}
+                  {selectedAlertType && (
+                    <div className="space-y-3">
+                      <Label
+                        htmlFor="threshold"
+                        className="text-base font-medium">
+                        Threshold Value
+                      </Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="threshold"
+                          type="number"
+                          value={alertThreshold}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setAlertThreshold(e.target.value)
+                          }
+                          placeholder={
+                            alertTypes.find((a) => a.id === selectedAlertType)
+                              ?.placeholder
+                          }
+                          className="flex-1"
+                        />
+                        <div className="flex items-center px-3 py-2 bg-gray-100 dark:bg-gray-800 rounded-md border text-sm font-medium text-gray-600 dark:text-gray-400">
+                          {
+                            alertTypes.find((a) => a.id === selectedAlertType)
+                              ?.unit
+                          }
                         </div>
                       </div>
-                    </button>
-                  ))}
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Set the threshold value that will trigger this alert.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div className="flex justify-end gap-3 pt-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedAlertType("");
+                        setAlertThreshold("");
+                        setIsAddAlertOpen(false);
+                      }}>
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleAddAlert}
+                      disabled={!selectedAlertType || !alertThreshold.trim()}
+                      className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+                      Add Alert
+                    </Button>
+                  </div>
                 </div>
               </DialogContent>
             </Dialog>
@@ -545,15 +635,39 @@ export function AnalyticsPage() {
                       </div>
                     </div>
 
+                    {/* Threshold info */}
+                    <div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                        Threshold
+                      </div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        {alert.threshold}{" "}
+                        {alertTypes.find((a) => a.id === alert.type)?.unit}
+                      </div>
+                    </div>
+
                     {/* Additional info based on type */}
                     {(alert.type === "pnl_loss" ||
                       alert.type === "exposure_limit") && (
                       <div>
                         <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                          Volume
+                          Current Value
                         </div>
                         <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                          -{Math.floor(Math.random() * 20) + 1}
+                          {alert.type === "pnl_loss"
+                            ? "-3,800.79 USD"
+                            : "3,653.05 USD"}
+                        </div>
+                      </div>
+                    )}
+
+                    {alert.type === "position_size" && (
+                      <div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                          Current Size
+                        </div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          0.01 Lots
                         </div>
                       </div>
                     )}
@@ -561,10 +675,21 @@ export function AnalyticsPage() {
                     {alert.type === "margin_call" && (
                       <div>
                         <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                          Equity
+                          Current Margin
                         </div>
                         <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                          {(Math.random() * 1000).toFixed(2)}
+                          {(Math.random() * 100).toFixed(1)}%
+                        </div>
+                      </div>
+                    )}
+
+                    {alert.type === "volatility" && (
+                      <div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                          Current Volatility
+                        </div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          {(Math.random() * 10).toFixed(2)}%
                         </div>
                       </div>
                     )}
@@ -605,7 +730,7 @@ export function AnalyticsPage() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* Trading Position Table - Takes up 2/3 of the width */}
         <div className="xl:col-span-2">
-          <Card className="shadow-xl border-0 bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm ">
+          <Card className="shadow-xl border-0">
             <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-t-lg p-3">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-white/20">
