@@ -3,16 +3,13 @@ import { mockAlertMessages } from "@/data/mockData";
 import type { AlertMessage } from "@/types";
 
 interface AlertsState {
-  isAlertsDrawerOpen: boolean;
   alertMessages: AlertMessage[];
   activeAlert: AlertMessage | null;
   isAlertDialogOpen: boolean;
   latestSidebarAlert: AlertMessage | null;
-  unreadAlertCount: number;
   handleAlertAction: (alertId: string, actionId: string) => void;
   handleMarkAsRead: (alertId: string) => void;
   handleDismissSidebarAlert: (id: string) => void;
-  setIsAlertsDrawerOpen: (open: boolean) => void;
   setIsAlertDialogOpen: (open: boolean) => void;
   setAlertMessages: (
     messages: AlertMessage[] | ((prev: AlertMessage[]) => AlertMessage[])
@@ -22,12 +19,10 @@ interface AlertsState {
 }
 
 export const useAlertsStore = create<AlertsState>((set, get) => ({
-  isAlertsDrawerOpen: false,
   alertMessages: mockAlertMessages,
   activeAlert: null,
   isAlertDialogOpen: false,
   latestSidebarAlert: null,
-  unreadAlertCount: 0,
 
   handleAlertAction: (alertId: string, actionId: string) => {
     const { alertMessages } = get();
@@ -71,7 +66,6 @@ export const useAlertsStore = create<AlertsState>((set, get) => ({
     }));
   },
 
-  setIsAlertsDrawerOpen: (open: boolean) => set({ isAlertsDrawerOpen: open }),
   setIsAlertDialogOpen: (open: boolean) => set({ isAlertDialogOpen: open }),
 
   setAlertMessages: (messages) => {
@@ -132,11 +126,9 @@ export const useAlertsStore = create<AlertsState>((set, get) => ({
   },
 }));
 
-// Computed value for unread count
-useAlertsStore.subscribe(
-  (state) => state.alertMessages,
-  (alertMessages) => {
-    const unreadCount = alertMessages.filter((a) => !a.isRead).length;
-    useAlertsStore.setState({ unreadAlertCount: unreadCount });
-  }
-);
+// Selector for unread count - computed on demand
+export const useUnreadAlertCount = () => {
+  return useAlertsStore(
+    (state) => state.alertMessages.filter((a) => !a.isRead).length
+  );
+};

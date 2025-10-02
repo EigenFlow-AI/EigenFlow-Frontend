@@ -1,14 +1,8 @@
 import { Bot } from "lucide-react";
+import { useUIStore } from "@/stores";
 
-interface MobileBottomNavProps {
-  isChatOpen: boolean;
-  onChatToggle: () => void;
-}
-
-export function MobileBottomNav({
-  isChatOpen,
-  onChatToggle,
-}: MobileBottomNavProps) {
+export function MobileBottomNav() {
+  const ui = useUIStore();
   return (
     <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-30">
       <div className="flex items-center justify-between max-w-md mx-auto">
@@ -30,10 +24,10 @@ export function MobileBottomNav({
 
         {/* AI Chat Button */}
         <button
-          onClick={onChatToggle}
+          onClick={ui.toggleChat}
           className="relative w-12 h-12 bg-violet-600 hover:bg-violet-700 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200">
           <Bot className="w-6 h-6 text-white" />
-          {!isChatOpen && (
+          {!ui.isChatOpen && (
             <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
           )}
         </button>

@@ -1,16 +1,11 @@
 import { Bot, XCircle } from "lucide-react";
 import { ChatInterface } from "./ChatInterface";
+import { useUIStore } from "@/stores";
 
-interface FloatingChatWindowProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+export function FloatingChatWindow() {
+  const ui = useUIStore();
 
-export function FloatingChatWindow({
-  isOpen,
-  onClose,
-}: FloatingChatWindowProps) {
-  if (!isOpen) return null;
+  if (!ui.isChatOpen) return null;
 
   return (
     <div className="fixed bottom-4 right-4 w-80 sm:w-96 h-[400px] sm:h-[500px] bg-white/95 backdrop-blur-sm border border-gray-200/50 rounded-xl shadow-2xl z-50 flex flex-col">
@@ -26,7 +21,7 @@ export function FloatingChatWindow({
           </span>
         </div>
         <button
-          onClick={onClose}
+          onClick={() => ui.setIsChatOpen(false)}
           title="Close chat window"
           aria-label="Close chat window"
           className="w-6 h-6 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors">

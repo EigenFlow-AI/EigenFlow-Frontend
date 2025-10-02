@@ -8,13 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { type MarginReport, type StatusType } from "@/types";
 import { CheckCircle, AlertTriangle, XCircle, Clock } from "lucide-react";
-
-interface MarginReportModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  report: MarginReport | null;
-  onActionClick: (actionId: string) => void;
-}
+import { useUIStore, useMarginCheckStore } from "@/stores";
 
 const getStatusIcon = (status: StatusType) => {
   switch (status) {
@@ -55,36 +49,35 @@ const getStatusText = (status: StatusType) => {
   }
 };
 
-export function MarginReportModal({
-  isOpen,
-  onClose,
-  report,
-  onActionClick,
-}: MarginReportModalProps) {
-  if (!report) return null;
+export function MarginReportModal() {
+  const ui = useUIStore();
+  const marginCheck = useMarginCheckStore();
+  if (!marginCheck.marginReport) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog
+      open={ui.isMarginReportOpen}
+      onOpenChange={() => ui.setIsMarginReportOpen(false)}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              {getStatusIcon(report.status)}
+              {getStatusIcon(marginCheck.marginReport.status)}
               <div>
                 <DialogTitle className="text-xl font-bold">
-                  {report.title}
+                  {marginCheck.marginReport.title}
                 </DialogTitle>
                 <DialogDescription className="text-sm text-gray-600">
-                  Generated at {report.timestamp}
+                  Generated at {marginCheck.marginReport.timestamp}
                 </DialogDescription>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <span
                 className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(
-                  report.status
+                  marginCheck.marginReport.status
                 )}`}>
-                {getStatusText(report.status)}
+                {getStatusText(marginCheck.marginReport.status)}
               </span>
             </div>
           </div>
@@ -95,19 +88,19 @@ export function MarginReportModal({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
             <div className="text-center">
               <div className="text-2xl font-bold text-gray-900">
-                {report.avgMarginLevel}%
+                {marginCheck.marginReport.avgMarginLevel}%
               </div>
               <div className="text-sm text-gray-600">Avg Margin Level</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-gray-900">
-                {report.lpCount}
+                {marginCheck.marginReport.lpCount}
               </div>
               <div className="text-sm text-gray-600">LP Count</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-gray-900">
-                {report.cardId}
+                {marginCheck.marginReport.cardId}
               </div>
               <div className="text-sm text-gray-600">Report ID</div>
             </div>
@@ -115,7 +108,7 @@ export function MarginReportModal({
 
           {/* Report Sections */}
           <div className="space-y-4">
-            {report.sections.map((section) => (
+            {marginCheck.marginReport.sections.map((section) => (
               <div
                 key={section.id}
                 className="border border-gray-200 rounded-lg p-4">
@@ -131,10 +124,10 @@ export function MarginReportModal({
 
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-200">
-            {report.actions.map((action) => (
+            {marginCheck.marginReport.actions.map((action) => (
               <Button
                 key={action.id}
-                onClick={() => onActionClick(action.id)}
+                onClick={() => marginCheck.handleActionClick(action.id)}
                 variant={
                   action.type === "primary"
                     ? "default"

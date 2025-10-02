@@ -12,13 +12,11 @@ import { AIChatArea } from "../app/AIChatArea";
 import { ChatReportCard } from "../app/ChatReportCard";
 import { MarginCheckCard } from "../app/MarginCheckCard";
 import { mockMarginReport } from "@/data/mockData";
+import { useMarginCheckStore, useChatStore } from "@/stores";
 
-interface DashboardPageProps {
-  onQuickCheck?: () => void;
-  onChatSend?: (message: string) => void;
-}
-
-export function HomePage({ onQuickCheck, onChatSend }: DashboardPageProps) {
+export function HomePage() {
+  const marginCheck = useMarginCheckStore();
+  const chat = useChatStore();
   const [selectedSuggestion, setSelectedSuggestion] = React.useState<string>();
   const [chatMessages, setChatMessages] = React.useState<
     { role: "user" | "assistant"; text: string; reportHtml?: React.ReactNode }[]
@@ -110,7 +108,7 @@ export function HomePage({ onQuickCheck, onChatSend }: DashboardPageProps) {
     // append user message
     setChatMessages((prev) => [...prev, { role: "user", text: message }]);
     // trigger app handler (which may open modal)
-    onChatSend?.(message);
+    chat.handleChatSend(message);
     // naive assistant ack for demo
     setChatMessages((prev) => [
       ...prev,
@@ -244,7 +242,7 @@ export function HomePage({ onQuickCheck, onChatSend }: DashboardPageProps) {
     switch (featureName) {
       case "Quick Check":
         console.log("Triggering quick margin check...");
-        onQuickCheck?.();
+        marginCheck.handleQuickCheck();
         break;
       case "Real-time Monitor":
         console.log("Opening real-time monitor...");

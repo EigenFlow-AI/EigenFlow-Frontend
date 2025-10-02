@@ -1,30 +1,21 @@
 import { Bell, Menu, CheckCircle } from "lucide-react";
 import logo from "@/assets/brand3-1.svg";
 import { UserAvatar } from "@/components/app/UserAvatar";
-interface HeaderProps {
-  isMobileMenuOpen: boolean;
-  onMobileMenuToggle: () => void;
-  onQuickCheck?: () => void;
-  isQuickCheckLoading?: boolean;
-  onAlertsClick?: () => void;
-  unreadCount?: number;
-}
+import { useUIStore, useMarginCheckStore, useUnreadAlertCount } from "@/stores";
 
-export function Header({
-  onMobileMenuToggle,
-  onQuickCheck,
-  isQuickCheckLoading = false,
-  onAlertsClick,
-  unreadCount = 0,
-}: HeaderProps) {
-  const displayUnread = unreadCount > 0 ? unreadCount : 1;
+export function Header() {
+  const ui = useUIStore();
+  const marginCheck = useMarginCheckStore();
+  const unreadAlertCount = useUnreadAlertCount();
+
+  const displayUnread = unreadAlertCount > 0 ? unreadAlertCount : 1;
   return (
     <header className="bg-white border-b border-gray-200 px-3 sm:px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 sm:gap-4">
           {/* Mobile Menu Button */}
           <button
-            onClick={onMobileMenuToggle}
+            onClick={ui.toggleMobileMenu}
             className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
             aria-label="Toggle mobile menu">
             <Menu className="w-5 h-5 text-gray-600" />
@@ -41,20 +32,22 @@ export function Header({
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Quick Check Button */}
           <button
-            onClick={onQuickCheck}
-            disabled={isQuickCheckLoading}
+            onClick={marginCheck.handleQuickCheck}
+            disabled={marginCheck.isLoading}
             className="flex items-center gap-2 px-3 py-2 bg-violet-600 hover:bg-violet-700 disabled:bg-violet-400 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors duration-200"
             aria-label="Quick Check">
             <CheckCircle
-              className={`w-4 h-4 ${isQuickCheckLoading ? "animate-spin" : ""}`}
+              className={`w-4 h-4 ${
+                marginCheck.isLoading ? "animate-spin" : ""
+              }`}
             />
             <span className="hidden sm:inline">
-              {isQuickCheckLoading ? "Checking..." : "Quick Check"}
+              {marginCheck.isLoading ? "Checking..." : "Quick Check"}
             </span>
           </button>
 
           <button
-            onClick={onAlertsClick}
+            onClick={() => ui.setIsAlertsDrawerOpen(true)}
             className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
             aria-label="View alerts">
             <Bell className="w-6 h-6 text-gray-600" />

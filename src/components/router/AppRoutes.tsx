@@ -5,21 +5,11 @@ import { AnalyticsPage } from "../pages/MonitorPage";
 import { ConfigPage } from "../pages/ConfigPage";
 import Dashboard from "../pages/DashboardPage";
 
-interface AppRoutesProps {
-  onQuickCheck: () => void;
-  onChatSend: (message: string) => void;
-}
-
-export function AppRoutes({ onQuickCheck, onChatSend }: AppRoutesProps) {
+export function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/homepage" replace />} />
-      <Route
-        path="/homepage"
-        element={
-          <HomePage onQuickCheck={onQuickCheck} onChatSend={onChatSend} />
-        }
-      />
+      <Route path="/homepage" element={<HomePage />} />
       <Route path="/health-center" element={<HealthCenter />} />
       <Route path="/analytics" element={<AnalyticsPage />} />
       <Route path="/alerts" element={<ConfigPage />} />

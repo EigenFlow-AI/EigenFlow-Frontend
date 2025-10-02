@@ -1,14 +1,8 @@
 import { ChevronLeft, ChevronRight, Calendar, Gift, Leaf } from "lucide-react";
+import { useUIStore } from "@/stores";
 
-interface RightSidebarProps {
-  isChatOpen: boolean;
-  onChatToggle: () => void;
-  onOpenAlerts?: () => void;
-  latestAlert?: any;
-  onDismissAlert?: (id: string) => void;
-}
-
-export function RightSidebar({ onOpenAlerts }: RightSidebarProps) {
+export function RightSidebar() {
+  const ui = useUIStore();
   return (
     <aside className="w-full flex flex-col p-3 lg:p-4 space-y-3 lg:space-y-4">
       {/* Profile Strength Card */}
@@ -103,7 +97,7 @@ export function RightSidebar({ onOpenAlerts }: RightSidebarProps) {
 
       {/* PRD: Alert Preview Card (click to open header alerts drawer) */}
       <button
-        onClick={onOpenAlerts}
+        onClick={() => ui.setIsAlertsDrawerOpen(true)}
         className="text-left bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-xl p-3 lg:p-4 shadow-lg hover:shadow-xl transition-shadow">
         <div className="flex items-center justify-between mb-1 lg:mb-2">
           <h3 className="text-xs lg:text-sm font-semibold text-gray-900">
@@ -130,7 +124,7 @@ export function RightSidebar({ onOpenAlerts }: RightSidebarProps) {
       </button>
 
       {/* AI Chat Icon */}
-      {/* <ChatIcon isOpen={isChatOpen} onClick={onChatToggle} /> */}
+      {/* <ChatIcon isOpen={ui.isChatOpen} onClick={ui.toggleChat} /> */}
     </aside>
   );
 }

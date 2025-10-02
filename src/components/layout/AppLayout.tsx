@@ -1,26 +1,28 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Header, Sidebar, RightSidebar, MobileBottomNav } from "./index";
 import { FloatingChatWindow } from "../chat";
 import { MarginReportModal } from "../app/MarginReportModal";
 import { AlertCardDialog } from "../app/AlertCardDialog";
 import { AlertMessagesDrawer } from "../app/AlertMessagesDrawer";
 import { AppRoutes } from "../router/AppRoutes";
-import { useNavigation } from "../../hooks/useNavigation";
-import {
-  useMarginCheckStore,
-  useAlertsStore,
-  useChatStore,
-} from "../../stores";
+import { useAlertsStore, useUIStore, useNavigationStore } from "../../stores";
 import type { ViewType } from "../../types";
 
 export function AppLayout() {
-  const { activeView, navigateToView } = useNavigation();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   // Get store values
-  const marginCheck = useMarginCheckStore();
   const alerts = useAlertsStore();
-  const chat = useChatStore();
+  const ui = useUIStore();
+  const navigation = useNavigationStore();
+
+  // Sync navigation store with current location
+  useEffect(() => {
+    navigation.setCurrentPath(location.pathname);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]); // Remove navigation from dependencies to avoid infinite loop
 
   // Start mock alerts on mount
   useEffect(() => {
@@ -28,39 +30,45 @@ export function AppLayout() {
     return () => {
       alerts.stopMockAlerts();
     };
-  }, [alerts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Remove alerts from dependencies to avoid infinite loop
 
   // Navigation handler
-  const handleViewChange = (view: string) => {
-    navigateToView(view as ViewType);
-    setIsMobileMenuOpen(false);
+  const handleViewChange = (view: ViewType) => {
+    // Map ViewType to route paths
+    const viewToPath: Record<ViewType, string> = {
+      homepage: "/homepage",
+      "health-center": "/health-center",
+      analytics: "/analytics",
+      alerts: "/alerts",
+      dashboard: "/dashboard",
+    };
+
+    const path = viewToPath[view];
+    if (path) {
+      navigate(path);
+    }
+    ui.closeMobileMenu();
   };
 
   return (
     <div className="h-screen bg-gray-50 flex flex-col">
-      <Header
-        isMobileMenuOpen={isMobileMenuOpen}
-        onMobileMenuToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        onQuickCheck={marginCheck.handleQuickCheck}
-        isQuickCheckLoading={marginCheck.isLoading}
-        onAlertsClick={() => alerts.setIsAlertsDrawerOpen(true)}
-        unreadCount={alerts.unreadAlertCount}
-      />
+      <Header />
 
       <div className="flex flex-1 min-h-0">
         {/* Mobile Sidebar Overlay */}
-        {isMobileMenuOpen && (
+        {ui.isMobileMenuOpen && (
           <div
             className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-            onClick={() => setIsMobileMenuOpen(false)}
+            onClick={ui.closeMobileMenu}
           />
         )}
 
         {/* Sidebar */}
         <Sidebar
-          activeView={activeView}
+          activeView={navigation.activeView}
           onViewChange={handleViewChange}
-          isMobileMenuOpen={isMobileMenuOpen}
+          isMobileMenuOpen={ui.isMobileMenuOpen}
         />
 
         {/* Main Content and Right Sidebar */}
@@ -68,74 +76,31 @@ export function AppLayout() {
           {/* Main Content */}
           <main className="flex-1 p-3 sm:p-4 lg:p-6 overflow-y-auto max-w-full pb-20 lg:pb-6">
             <div className="w-full mx-auto">
-              <AppRoutes
-                onQuickCheck={marginCheck.handleQuickCheck}
-                onChatSend={chat.handleChatSend}
-              />
+              <AppRoutes />
             </div>
           </main>
 
           {/* Right Sidebar - Responsive visibility */}
           <div className="hidden lg:block lg:w-72 xl:w-80">
-            <RightSidebar
-              isChatOpen={chat.isChatOpen}
-              onChatToggle={() => chat.setIsChatOpen(!chat.isChatOpen)}
-              onOpenAlerts={() => alerts.setIsAlertsDrawerOpen(true)}
-              latestAlert={alerts.latestSidebarAlert}
-              onDismissAlert={alerts.handleDismissSidebarAlert}
-            />
+            <RightSidebar />
           </div>
         </div>
       </div>
 
       {/* Mobile Bottom Navigation */}
-      <MobileBottomNav
-        isChatOpen={chat.isChatOpen}
-        onChatToggle={() => chat.setIsChatOpen(!chat.isChatOpen)}
-      />
+      <MobileBottomNav />
 
       {/* Floating Chat Window */}
-      <FloatingChatWindow
-        isOpen={chat.isChatOpen}
-        onClose={() => chat.setIsChatOpen(false)}
-      />
+      <FloatingChatWindow />
 
       {/* Margin Report Modal */}
-      <MarginReportModal
-        isOpen={marginCheck.isMarginReportOpen}
-        onClose={() => marginCheck.setIsMarginReportOpen(false)}
-        report={marginCheck.marginReport}
-        onActionClick={marginCheck.handleActionClick}
-      />
+      <MarginReportModal />
 
       {/* Alert Messages Drawer */}
-      <AlertMessagesDrawer
-        isOpen={alerts.isAlertsDrawerOpen}
-        onClose={() => alerts.setIsAlertsDrawerOpen(false)}
-        alerts={alerts.alertMessages}
-        onAlertAction={alerts.handleAlertAction}
-        onMarkAsRead={alerts.handleMarkAsRead}
-      />
+      <AlertMessagesDrawer />
 
       {/* PRD Alert Card Dialog */}
-      <AlertCardDialog
-        isOpen={alerts.isAlertDialogOpen}
-        onClose={() => alerts.setIsAlertDialogOpen(false)}
-        alert={alerts.activeAlert}
-        onRecheck={(a) => {
-          console.log("Recheck from dialog", a.id);
-          alerts.setIsAlertDialogOpen(false);
-        }}
-        onDetails={(a) => {
-          console.log("Details from dialog", a.id);
-        }}
-        onIgnore={(a) => {
-          alerts.setAlertMessages((prev) =>
-            prev.map((x) => (x.id === a.id ? { ...x, isRead: true } : x))
-          );
-          alerts.setIsAlertDialogOpen(false);
-        }}
-      />
+      <AlertCardDialog />
     </div>
   );
 }

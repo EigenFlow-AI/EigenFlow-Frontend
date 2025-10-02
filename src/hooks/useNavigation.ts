@@ -24,7 +24,7 @@ export function useNavigation() {
   const location = useLocation();
 
   // Get current active view from pathname
-  const activeView: ViewType = pathToView[location.pathname] || "homepage";
+g  const activeView: ViewType = pathToView[location.pathname] || "homepage";
 
   // Navigate to a specific view
   const navigateToView = (view: ViewType) => {

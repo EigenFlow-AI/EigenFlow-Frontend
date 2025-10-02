@@ -9,14 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { type AlertMessage, type StatusType } from "@/types";
 import { Clock, TrendingUp, Wifi, Shield } from "lucide-react";
-
-interface AlertMessagesDrawerProps {
-  isOpen: boolean;
-  onClose: () => void;
-  alerts: AlertMessage[];
-  onAlertAction: (alertId: string, actionId: string) => void;
-  onMarkAsRead: (alertId: string) => void;
-}
+import { useUIStore, useAlertsStore } from "@/stores";
 
 const getSeverityColor = (severity: StatusType) => {
   switch (severity) {
@@ -59,16 +52,18 @@ const getSeverityText = (severity: StatusType) => {
   }
 };
 
-export function AlertMessagesDrawer({
-  isOpen,
-  onClose,
-  alerts,
-  onAlertAction,
-}: AlertMessagesDrawerProps) {
-  const unreadCount = alerts.filter((alert) => !alert.isRead).length;
+export function AlertMessagesDrawer() {
+  const ui = useUIStore();
+  const alerts = useAlertsStore();
+
+  const unreadCount = alerts.alertMessages.filter(
+    (alert) => !alert.isRead
+  ).length;
 
   return (
-    <Drawer open={isOpen} onOpenChange={onClose}>
+    <Drawer
+      open={ui.isAlertsDrawerOpen}
+      onOpenChange={() => ui.setIsAlertsDrawerOpen(false)}>
       <DrawerContent
         side="right"
         className="w-full sm:max-w-md h-full flex flex-col">
@@ -94,16 +89,16 @@ export function AlertMessagesDrawer({
 
         <div className="flex-1 overflow-y-auto p-4 min-h-0">
           <div className="flex flex-col gap-4">
-            {alerts.length === 0 ? (
+            {alerts.alertMessages.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
                 <Clock className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                 <p>No alerts at this time</p>
               </div>
             ) : (
-              alerts.map((alert) => (
+              alerts.alertMessages.map((alert) => (
                 <button
                   key={alert.id}
-                  onClick={() => onAlertAction(alert.id, "details")}
+                  onClick={() => alerts.handleAlertAction(alert.id, "details")}
                   className={`text-left w-full border rounded-lg p-4 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-violet-500 ${
                     alert.isRead
                       ? "bg-gray-50 border-gray-200"
@@ -197,7 +192,7 @@ export function AlertMessagesDrawer({
                             }
                             onClick={(e) => {
                               e.stopPropagation();
-                              onAlertAction(alert.id, action.id);
+                              alerts.handleAlertAction(alert.id, action.id);
                             }}
                             className="text-xs">
                             {action.label}

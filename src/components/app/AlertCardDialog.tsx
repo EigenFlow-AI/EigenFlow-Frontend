@@ -8,15 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import type { AlertMessage, StatusType } from "@/types";
 import { AlertTriangle, XCircle, CheckCircle } from "lucide-react";
-
-interface AlertCardDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  alert: AlertMessage | null;
-  onRecheck: (alert: AlertMessage) => void;
-  onDetails: (alert: AlertMessage) => void;
-  onIgnore: (alert: AlertMessage) => void;
-}
+import { useUIStore, useAlertsStore } from "@/stores";
 
 const getStatusIcon = (severity: StatusType) => {
   switch (severity) {
@@ -44,32 +36,30 @@ const getSeverityBadge = (severity: StatusType) => {
   }
 };
 
-export function AlertCardDialog({
-  isOpen,
-  onClose,
-  alert,
-  onRecheck,
-  onDetails,
-  onIgnore,
-}: AlertCardDialogProps) {
-  if (!alert) return null;
+export function AlertCardDialog() {
+  const ui = useUIStore();
+  const alerts = useAlertsStore();
+
+  if (!alerts.activeAlert) return null;
 
   const title = "LP Margin Alert";
-  const timeText = alert.timestamp || "";
+  const timeText = alerts.activeAlert.timestamp || "";
   const statusLabel =
-    alert.severity === "critical"
+    alerts.activeAlert.severity === "critical"
       ? "CRITICAL"
-      : alert.severity === "warn"
+      : alerts.activeAlert.severity === "warn"
       ? "WARNING"
       : "OK";
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog
+      open={ui.isAlertDialogOpen}
+      onOpenChange={() => ui.setIsAlertDialogOpen(false)}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              {getStatusIcon(alert.severity)}
+              {getStatusIcon(alerts.activeAlert.severity)}
               <div>
                 <DialogTitle className="text-lg font-bold">{title}</DialogTitle>
                 <DialogDescription className="text-sm text-gray-600">
@@ -79,7 +69,7 @@ export function AlertCardDialog({
             </div>
             <span
               className={`px-3 py-1 rounded-full text-xs font-semibold border ${getSeverityBadge(
-                alert.severity
+                alerts.activeAlert.severity
               )}`}>
               {statusLabel}
             </span>
@@ -90,12 +80,13 @@ export function AlertCardDialog({
           {/* LP and metric line */}
           <div className="text-gray-900">
             <div className="font-medium">
-              {alert.lpName} Margin Level
-              {typeof alert.marginLevel === "number" &&
-              typeof alert.threshold === "number" ? (
+              {alerts.activeAlert.lpName} Margin Level
+              {typeof alerts.activeAlert.marginLevel === "number" &&
+              typeof alerts.activeAlert.threshold === "number" ? (
                 <>
                   {" "}
-                  at {alert.marginLevel}% (Threshold: {alert.threshold}%)
+                  at {alerts.activeAlert.marginLevel}% (Threshold:{" "}
+                  {alerts.activeAlert.threshold}%)
                 </>
               ) : null}
             </div>
@@ -105,7 +96,7 @@ export function AlertCardDialog({
           <div className="border rounded-lg p-4 bg-gray-50">
             <div className="font-semibold mb-2">AI Analysis & Suggestion:</div>
             <div className="text-sm text-gray-800 whitespace-pre-line">
-              {alert.message ||
+              {alerts.activeAlert.message ||
                 "System detected elevated margin risk. Consider taking actions to reduce margin pressure."}
             </div>
           </div>
@@ -113,14 +104,30 @@ export function AlertCardDialog({
           {/* Actions */}
           <div className="flex flex-wrap gap-3">
             <Button
-              onClick={() => onRecheck(alert)}
+              onClick={() => {
+                console.log("Recheck from dialog", alerts.activeAlert.id);
+                ui.setIsAlertDialogOpen(false);
+              }}
               className="bg-violet-600 hover:bg-violet-700">
               I've Fixed This. Re-check
             </Button>
-            <Button variant="outline" onClick={() => onDetails(alert)}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                console.log("Details from dialog", alerts.activeAlert.id);
+              }}>
               Details
             </Button>
-            <Button variant="ghost" onClick={() => onIgnore(alert)}>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                alerts.setAlertMessages((prev) =>
+                  prev.map((x) =>
+                    x.id === alerts.activeAlert.id ? { ...x, isRead: true } : x
+                  )
+                );
+                ui.setIsAlertDialogOpen(false);
+              }}>
               Ignore
             </Button>
           </div>
