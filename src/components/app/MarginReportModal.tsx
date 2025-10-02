@@ -6,9 +6,10 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { type MarginReport, type StatusType } from "@/types";
+import { type StatusType } from "@/types";
 import { CheckCircle, AlertTriangle, XCircle, Clock } from "lucide-react";
 import { useUIStore, useMarginCheckStore } from "@/stores";
+import { StructuredReportRenderer } from "./StructuredReportRenderer";
 
 const getStatusIcon = (status: StatusType) => {
   switch (status) {
@@ -52,6 +53,7 @@ const getStatusText = (status: StatusType) => {
 export function MarginReportModal() {
   const ui = useUIStore();
   const marginCheck = useMarginCheckStore();
+
   if (!marginCheck.marginReport) return null;
 
   return (
@@ -106,18 +108,22 @@ export function MarginReportModal() {
             </div>
           </div>
 
-          {/* Report Sections */}
+          {/* Report Content */}
           <div className="space-y-4">
             {marginCheck.marginReport.sections.map((section) => (
-              <div
-                key={section.id}
-                className="border border-gray-200 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {section.title}
-                </h3>
-                <div className="text-gray-700 whitespace-pre-line">
-                  {section.content}
-                </div>
+              <div key={section.id}>
+                {section.id === "report_content" ? (
+                  <StructuredReportRenderer content={section.content} />
+                ) : (
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      {section.title}
+                    </h3>
+                    <div className="text-gray-700 whitespace-pre-line">
+                      {section.content}
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>

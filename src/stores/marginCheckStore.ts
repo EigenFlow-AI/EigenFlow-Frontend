@@ -2,6 +2,7 @@ import { create } from "zustand";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import type { MarginReport, StatusType } from "@/types";
+import { useUIStore } from "./uiStore";
 
 // Create simple MarginReport from API response
 const createReportFromApiResponse = (
@@ -52,18 +53,15 @@ const createReportFromApiResponse = (
 };
 
 interface MarginCheckState {
-  isMarginReportOpen: boolean;
   marginReport: MarginReport | null;
   isLoading: boolean;
   handleQuickCheck: () => Promise<void>;
   handleActionClick: (actionId: string) => Promise<void>;
-  setIsMarginReportOpen: (open: boolean) => void;
   setMarginReport: (report: MarginReport | null) => void;
   setIsLoading: (loading: boolean) => void;
 }
 
 export const useMarginCheckStore = create<MarginCheckState>((set, get) => ({
-  isMarginReportOpen: false,
   marginReport: null,
   isLoading: false,
 
@@ -79,7 +77,6 @@ export const useMarginCheckStore = create<MarginCheckState>((set, get) => ({
         requestBody
       );
       const apiResponse = response.data;
-      console.log("Margin Check API Response:", apiResponse);
 
       // Handle different response types
       if (
@@ -90,15 +87,30 @@ export const useMarginCheckStore = create<MarginCheckState>((set, get) => ({
           apiResponse.interrupt_data.report,
           apiResponse.thread_id
         );
-        set({ marginReport: report, isMarginReportOpen: true });
+        set({ marginReport: report });
+        // 使用 uiStore 来控制弹窗显示
+        useUIStore.getState().setIsMarginReportOpen(true);
       } else if (apiResponse.type === "complete" && apiResponse.content) {
         const report = createReportFromApiResponse(
           apiResponse.content,
           apiResponse.thread_id
         );
-        set({ marginReport: report, isMarginReportOpen: true });
+        set({ marginReport: report });
+        // 使用 uiStore 来控制弹窗显示
+        useUIStore.getState().setIsMarginReportOpen(true);
       } else {
         console.warn("Unexpected response format:", apiResponse);
+        // 尝试处理其他可能的响应格式
+        if (apiResponse.report || apiResponse.content || apiResponse.message) {
+          const reportText =
+            apiResponse.report || apiResponse.content || apiResponse.message;
+          const report = createReportFromApiResponse(
+            reportText,
+            apiResponse.thread_id || uuidv4()
+          );
+          set({ marginReport: report });
+          useUIStore.getState().setIsMarginReportOpen(true);
+        }
       }
     } catch (error) {
       console.error("Failed to perform quick check:", error);
@@ -149,7 +161,6 @@ export const useMarginCheckStore = create<MarginCheckState>((set, get) => ({
     }
   },
 
-  setIsMarginReportOpen: (open: boolean) => set({ isMarginReportOpen: open }),
   setMarginReport: (report: MarginReport | null) =>
     set({ marginReport: report }),
   setIsLoading: (loading: boolean) => set({ isLoading: loading }),
