@@ -1,10 +1,10 @@
 // View types
 export type ViewType =
-  | "dashboard"
+  | "homepage"
   | "health-center"
   | "analytics"
   | "alerts"
-  | "settings";
+  | "dashboard";
 
 // Status types
 export type StatusType = "ok" | "warn" | "critical";

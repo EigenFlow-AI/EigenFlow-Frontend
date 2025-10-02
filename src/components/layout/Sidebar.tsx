@@ -7,17 +7,11 @@ import {
   Gauge,
   MoreHorizontal,
 } from "lucide-react";
+import type { ViewType } from "@/types";
 
 interface SidebarProps {
-  activeView:
-    | "dashboard"
-    | "health-center"
-    | "analytics"
-    | "alerts"
-    | "settings";
-  onViewChange: (
-    view: "dashboard" | "health-center" | "analytics" | "alerts" | "settings"
-  ) => void;
+  activeView: ViewType;
+  onViewChange: (view: ViewType) => void;
   isMobileMenuOpen?: boolean;
 }
 
@@ -68,10 +62,10 @@ export function Sidebar({
     `}>
       <div className="flex flex-col items-center gap-6">
         <div
-          onClick={() => onViewChange("dashboard")}
+          onClick={() => onViewChange("homepage")}
           className="cursor-pointer">
           <Icon
-            className={activeView === "dashboard" ? "active" : ""}
+            className={activeView === "homepage" ? "active" : ""}
             label="Home">
             <Home className="w-5 h-5" />
           </Icon>
@@ -104,10 +98,10 @@ export function Sidebar({
           </Icon>
         </div>
         <div
-          onClick={() => onViewChange("settings")}
+          onClick={() => onViewChange("dashboard")}
           className="cursor-pointer">
           <Icon
-            className={activeView === "settings" ? "active" : ""}
+            className={activeView === "dashboard" ? "active" : ""}
             label="Dashboard">
             <Gauge className="w-5 h-5" />
           </Icon>
