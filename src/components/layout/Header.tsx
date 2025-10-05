@@ -1,7 +1,15 @@
-import { Bell, Menu, CheckCircle } from "lucide-react";
+import { Bell, Menu, CheckCircle, Database } from "lucide-react";
 import logo from "@/assets/brand3-1.svg";
 import { UserAvatar } from "@/components/app/UserAvatar";
 import { useUIStore, useMarginCheckStore, useUnreadAlertCount } from "@/stores";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import mockApiResponse from "@/assets/assets_margin_check_apiResponse.json";
 
 export function Header() {
   const ui = useUIStore();
@@ -45,6 +53,55 @@ export function Header() {
               {marginCheck.isLoading ? "Checking..." : "Quick Check"}
             </span>
           </button>
+
+          {/* Mock Data Dialog */}
+          <Dialog>
+            <DialogTrigger asChild>
+              <button
+                className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
+                aria-label="View Mock Data">
+                <Database className="w-4 h-4" />
+                <span className="hidden sm:inline">Mock Data</span>
+              </button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>API Response Data</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-6">
+                {/* Complete API Response */}
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold mb-3 text-gray-900">
+                    Complete API Response
+                  </h3>
+                  <pre className="text-xs bg-white p-3 rounded border overflow-x-auto">
+                    {JSON.stringify(mockApiResponse, null, 2)}
+                  </pre>
+                </div>
+
+                {/* Report Content Only */}
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold mb-3 text-gray-900">
+                    Report Content
+                  </h3>
+                  <pre className="text-xs bg-white p-3 rounded border overflow-x-auto whitespace-pre-wrap">
+                    {mockApiResponse.interrupt_data?.report ||
+                      "No report content available"}
+                  </pre>
+                </div>
+
+                {/* Interrupt Data */}
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold mb-3 text-gray-900">
+                    Interrupt Data
+                  </h3>
+                  <pre className="text-xs bg-white p-3 rounded border overflow-x-auto">
+                    {JSON.stringify(mockApiResponse.interrupt_data, null, 2)}
+                  </pre>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
 
           <button
             onClick={() => ui.setIsAlertsDrawerOpen(true)}

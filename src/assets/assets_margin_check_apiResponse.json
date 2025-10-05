@@ -1,0 +1,12 @@
+{
+  "type": "interrupt",
+  "status": "awaiting_approval",
+  "interrupt_data": {
+    "type": "margin_check_approval",
+    "report": "<HEALTH_STATUS>\nOK - 2025-10-03 09:04:28\n</HEALTH_STATUS>\n\n<SUMMARY_METRICS>\n- 平均保证金水平: 15.64%\n- LP账户总数: 4\n- 跨LP对冲机会数: 13\n- 可释放保证金总额: $117,597.10\n- 最高保证金水平账户: [GUI] CFH (28.46%)\n</SUMMARY_METRICS>\n\n<CRITICAL_ALERTS>\n• 发现重大跨LP对冲机会：[GUI] CFH 与 [MT5] GBE 在 USDJPY 上存在 200,000 手对冲头寸，可释放 $102,981.13 保证金\n• 多个贵金属品种存在跨平台对冲机会（XAUUSD/XPDUSD），总可释放保证金 $3,537.84\n• [GUI] CFH 保证金水平相对较高 (28.46%)，建议优先处理其对冲头寸\n</CRITICAL_ALERTS>\n\n<PRIORITY_RECOMMENDATIONS>\n**P0 (Critical) - 清理跨LP对冲头寸 - USDJPY**\n- **动作**: 立即清算 [GUI] CFH 与 [MT5] GBE 之间 200,000 手 USDJPY 对冲头寸\n- **预期影响**: 释放 $102,981.13 保证金，降低整体风险暴露\n- **理由**: 这是最大的单一风险点和最优的保证金释放机会，应作为最高优先级处理\n\n**P0 (Critical) - 清理跨平台黄金对冲头寸**\n- **动作**: 清算 [MT5] Aksys 300749 与 [OZ] Starprime 之间 201 手 XAUUSD 对冲头寸\n- **预期影响**: 释放 $2,569.99 保证金，简化多平台持仓结构\n- **理由**: 跨三个平台的XAUUSD复杂对冲结构增加了操作风险，应优先简化\n\n**P1 (High) - 清理澳元系列货币对冲**\n- **动作**: 清理 [MT5] GBE 与 [GUI] CFH 之间的 AUDUSD (11,000手)、AUDJPY (1,000手) 和 NZDUSD (6,000手) 对冲头寸\n- **预期影响**: 额外释放 $9,813.42 保证金\n- **理由**: 澳元系列货币存在多个对冲机会，集中处理可显著优化保证金使用效率\n</PRIORITY_RECOMMENDATIONS>\n\n<DETAILED_ANALYSIS>\n当前所有LP账户的保证金水平均处于安全范围（最高为[GUI] CFH的28.46%，远低于80%警戒线）。系统识别出13个跨LP对冲机会，总计可释放$117,597.10保证金。\n\n主要对冲机会集中在：\n1. **USDJPY**: [GUI] CFH 与 [MT5] GBE 之间存在大规模对冲，是最大的优化机会\n2. **XAUUSD**: 形成了涉及三个LP的复杂对冲网络，建议从最小头寸([OZ] Starprime)开始清理\n3. **澳元系货币**: 多个相关货币对存在对冲，建议批量处理以提高效率\n\n尽管当前无紧急风险，但通过执行上述建议，可显著优化资本效率，释放约$11.7万的冻结保证金，同时简化整体持仓结构，降低操作复杂性和潜在执行风险。\n</DETAILED_ANALYSIS>",
+    "question": "Please review the margin analysis report above. You can:\n1. Enter feedback/comments to continue discussion\n2. Leave empty to end the session",
+    "trace_id": "fab60bb7-3af4-45cd-bda5-dfccbb08acff",
+    "card_id": "603da77f-e0e9-4922-a011-7e459bf7a8fb"
+  },
+  "thread_id": "603da77f-e0e9-4922-a011-7e459bf7a8fb"
+}

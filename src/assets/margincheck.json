@@ -1,0 +1,26 @@
+{
+"report"
+: 
+"<HEALTH_STATUS>\nOK - 2025-10-03 08:46:18\n</HEALTH_STATUS>\n\n<SUMMARY_METRICS>\n- 平均保证金水平: 15.77%\n- LP账户总数: 4\n- 最高保证金水平: 27.62% ([GUI] CFH)\n- 可释放保证金总额: $119,278.14\n- 跨LP对冲机会数: 13\n- 高优先级操作建议: 3\n</SUMMARY_METRICS>\n\n<CRITICAL_ALERTS>\n1. ⚠️ **重大跨LP对冲机会** - [GUI] CFH 与 [MT5] GBE 800997 在 USDJPY 上存在 200,000 手的对冲头寸，可释放 $101,415.61 保证金\n2. ⚠️ **高价值对冲机会** - [OZ] Starprime 与 [MT5] Aksys 300749 在 XAUUSD 上可释放 $1,958.99 保证金\n3. ⚠️ **多货币对集中对冲机会** - [GUI] CFH 与 [MT5] GBE 800997 在 AUDUSD、NZDUSD、USDJPY 等多个货币对上存在系统性对冲机会，合计可释放 $109,638.81 保证金\n</CRITICAL_ALERTS>\n\n<PRIORITY_RECOMMENDATIONS>\n1. **P0 (Critical) - 清理 USDJPY 跨LP对冲头寸**\n   - **具体操作**: 立即清除 [GUI] CFH 与 [MT5] GBE 800997 之间 200,000 手 USDJPY 的对冲头寸\n   - **预期影响**: 释放 $101,415.61 保证金，降低整体风险暴露\n   - **理由**: 这是当前最大单一风险敞口，占总可释放保证金的 85%，且涉及主要货币对，应优先处理\n\n2. **P0 (Critical) - 清理贵金属跨LP对冲**\n   - **具体操作**: 清除 [OZ] Starprime 与 [MT5] Aksys 300749 之间 349/801 手 XAUUSD 的对冲头寸\n   - **预期影响**: 释放 $1,958.99 保证金，优化贵金属头寸管理\n   - **理由**: 高价值且易于执行的对冲清理机会，能快速改善保证金效率\n\n3. **P1 (High) - 系统性清理澳元系货币对冲**\n   - **具体操作**: 同时清理 [GUI] CFH 与 [MT5] GBE 800997 在 AUDUSD ($5,577.86)、NZDUSD ($3,042.47) 和 AUDJPY ($507.08) 的对冲头寸\n   - **预期影响**: 合计释放 $9,127.41 保证金，简化多货币对风险管理\n   - **理由**: 多个相关货币对存在对冲，集中处理可提高操作效率并降低操作风险\n</PRIORITY_RECOMMENDATIONS>\n\n<DETAILED_ANALYSIS>\n## 保证金健康状况分析\n\n所有LP账户的保证金水平均处于安全范围（最高为 [GUI] CFH 的 27.62%），远低于 80% 的预警线。整体平均保证金水平为 15.77%，表明当前风险敞口管理良好。\n\n## 主要风险敞口分布\n\n- **[GUI] CFH**: 总暴露 $363亿，保证金使用 $253,937.96，保证金水平 27.62%\n- **[MT5] GBE 800997**: 总暴露 $229亿，保证金使用 $120,920.37，保证金水平 13.85%\n- **[OZ] Starprime**: 总暴露 $2.2亿，保证金使用 $99,981.20，保证金水平 19.31%\n- **[MT5] Aksys 300749**: 总暴露 $3.49万，保证金使用 $4,496.13，保证金水平 2.31%\n\n## 跨LP对冲机会详情\n\n### 最高价值机会\n- **USDJPY**: [GUI] CFH ↔ [MT5] GBE 800997 - 200,000 手 → $101,415.61\n- **AUDUSD**: [GUI] CFH ↔ [MT5] GBE 800997 - 11,000 手 → $5,577.86\n- **XAUUSD**: [OZ] Starprime ↔ [MT5] Aksys 300749 - 349/801 手 → $1,958.99\n\n### 其他对冲机会\n- NZDUSD: $3,042.47\n- EURAUD/EURJPY: 各 $2,028.31\n- GBPUSD: $1,014.16\n- XPDUSD: $709.91\n\n## 操作建议总结\n\n1. **立即执行**所有 P0 级别的跨LP对冲清理，特别是 USDJPY 的大规模对冲头寸\n2. **建立定期对冲审查机制**，每周自动扫描跨LP对冲机会\n3. **优化头寸分配策略**，避免在不同LP间产生不必要的对冲头寸\n4. **监控贵金属头寸**，XAUUSD/XAGUSD 等品种容易在不同LP间产生分散头寸\n\n当前无 moveCandidates 或其他优化建议，主要优化空间在于跨LP对冲头寸的清理。\n</DETAILED_ANALYSIS>"
+trace_id
+: 
+"2bc17fc9-7ad8-4754-a304-51da7e8d5e11"
+type
+: 
+"margin_check_approval"
+[[Prototype]]
+: 
+Object
+status
+: 
+"awaiting_approval"
+thread_id
+: 
+"9724f3cc-2f08-40e8-918a-2003614c35d4"
+type
+: 
+"interrupt"
+[[Prototype]]
+: 
+Object
+}

@@ -3,6 +3,7 @@ import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import type { MarginReport, StatusType } from "@/types";
 import { useUIStore } from "./uiStore";
+import { downloadJSON } from "@/utils/download";
 
 // Create simple MarginReport from API response
 const createReportFromApiResponse = (
@@ -77,6 +78,8 @@ export const useMarginCheckStore = create<MarginCheckState>((set, get) => ({
         requestBody
       );
       const apiResponse = response.data;
+      downloadJSON(apiResponse, "margin_check_apiResponse.json");
+      console.log("margin check apiResponse", apiResponse);
 
       // Handle different response types
       if (
@@ -98,6 +101,19 @@ export const useMarginCheckStore = create<MarginCheckState>((set, get) => ({
         set({ marginReport: report });
         // 使用 uiStore 来控制弹窗显示
         useUIStore.getState().setIsMarginReportOpen(true);
+      } else if (apiResponse.type === "error") {
+        // 处理错误响应
+        console.error("API returned error:", apiResponse);
+        const errorMessage = apiResponse.error || "Unknown error occurred";
+
+        // 创建错误报告
+        const errorReport = createReportFromApiResponse(
+          `错误: ${errorMessage}\n\n请检查:\n1. 后端服务是否正常运行\n2. 网络连接是否正常\n3. 端口 8001 是否可访问`,
+          apiResponse.thread_id || uuidv4()
+        );
+        errorReport.status = "critical";
+        set({ marginReport: errorReport });
+        useUIStore.getState().setIsMarginReportOpen(true);
       } else {
         console.warn("Unexpected response format:", apiResponse);
         // 尝试处理其他可能的响应格式
@@ -110,10 +126,52 @@ export const useMarginCheckStore = create<MarginCheckState>((set, get) => ({
           );
           set({ marginReport: report });
           useUIStore.getState().setIsMarginReportOpen(true);
+        } else {
+          // 完全未知的响应格式
+          const unknownReport = createReportFromApiResponse(
+            "收到未知格式的响应，请检查后端服务状态",
+            apiResponse.thread_id || uuidv4()
+          );
+          unknownReport.status = "warn";
+          set({ marginReport: unknownReport });
+          useUIStore.getState().setIsMarginReportOpen(true);
         }
       }
     } catch (error) {
       console.error("Failed to perform quick check:", error);
+
+      // 创建网络错误报告
+      let errorMessage = "网络连接失败";
+      let errorDetails = "请检查网络连接和后端服务状态";
+
+      if (axios.isAxiosError(error)) {
+        if (
+          error.code === "ECONNREFUSED" ||
+          error.message.includes("Can't assign requested address")
+        ) {
+          errorMessage = "无法连接到后端服务";
+          errorDetails = "请确保后端服务在 http://0.0.0.0:8001 上正常运行";
+        } else if (error.code === "ENOTFOUND") {
+          errorMessage = "服务器地址无法解析";
+          errorDetails = "请检查服务器地址配置";
+        } else if (error.code === "ETIMEDOUT") {
+          errorMessage = "请求超时";
+          errorDetails = "后端服务响应时间过长，请稍后重试";
+        } else {
+          errorMessage = `网络错误: ${error.message}`;
+          errorDetails = "请检查网络连接";
+        }
+      }
+
+      const networkErrorReport = createReportFromApiResponse(
+        `${errorMessage}\n\n${errorDetails}\n\n错误详情: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+        uuidv4()
+      );
+      networkErrorReport.status = "critical";
+      set({ marginReport: networkErrorReport });
+      useUIStore.getState().setIsMarginReportOpen(true);
     } finally {
       set({ isLoading: false });
     }
