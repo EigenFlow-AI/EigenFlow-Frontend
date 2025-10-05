@@ -1,0 +1,18 @@
+{
+  "type": "interrupt",
+  "status": "awaiting_approval",
+  "interrupt_data": {
+    "type": "margin_check_approval",
+    "report": "<HEALTH_STATUS>\nOK - 2025-10-05 13:19:31\n</HEALTH_STATUS>\n\n<SUMMARY_METRICS>\n- 平均保证金水平: 19.82%\n- LP账户总数: 4\n- 高风险账户数: 0\n- 可释放保证金总额: $122,775.81\n- 跨LP对冲机会数: 13\n</SUMMARY_METRICS>\n\n<CRITICAL_ALERTS>\n无紧急风险警报。所有LP账户的保证金水平均处于安全线以下（阈值80%）。建议执行跨LP对冲平仓以优化保证金使用效率。\n</CRITICAL_ALERTS>\n\n<PRIORITY_RECOMMENDATIONS>\n1. **P0 (Critical)** - 执行[GUI] CFH与[MT5] GBE 800997之间的USDJPY头寸对冲平仓  \n   - 动作: 清算双方各200,000手USDJPY的对向头寸  \n   - 预期影响: 释放$109,907.96保证金  \n   - 理由: 最大单笔保证金释放机会，显著降低整体风险敞口\n\n2. **P0 (Critical)** - 执行[GUI] CFH与[MT5] GBE 800997之间的AUDUSD头寸对冲平仓  \n   - 动作: 清算双方各11,000手AUDUSD的对向头寸  \n   - 预期影响: 释放$6,044.94保证金  \n   - 理由: 第二大保证金释放机会，涉及主要货币对，流动性好易于执行\n\n3. **P0 (Critical)** - 执行[GUI] CFH与[MT5] GBE 800997之间的NZDUSD头寸对冲平仓  \n   - 动作: 清算双方各6,000手NZDUSD的对向头寸  \n   - 预期影响: 释放$3,297.24保证金  \n   - 理由: 高效释放保证金，同时减少小型货币对的风险暴露\n</PRIORITY_RECOMMENDATIONS>\n\n<DETAILED_ANALYSIS>\n当前所有LP账户保证金水平健康，平均保证金使用率为19.82%，远低于80%的预警阈值。\n\n关键分析点：\n1. [GUI] CFH账户保证金水平最高（44.7%），主要由于持有大量未对冲头寸，特别是USDJPY、GAUCNH等品种\n2. [OZ] Starprime和[MT5] GBE 800997在XPDUSD上存在完全匹配的1,400手对向头寸，可释放$769.36保证金\n3. 多个主要货币对存在跨LP对冲机会，包括EURUSD、GBPUSD、AUDJPY等，合计可释放超过$12万保证金\n\n建议立即执行P0级别的跨LP对冲平仓操作，这不仅能释放大量被占用的保证金，还能降低整体市场风险暴露，提高资金使用效率。所有推荐操作均为零市场风险的内部对冲，不会产生额外亏损。\n</DETAILED_ANALYSIS>",
+    "question": "Please review the margin analysis report above. You can:\n1. Enter feedback/comments to continue discussion\n2. Leave empty to end the session",
+    "trace_id": "6b3d40db-b061-4ed8-a30b-456d70cc68df",
+    "card_id": "877d5124-3944-4824-9ab4-cdb3ef623bec"
+  },
+  "thread_id": "877d5124-3944-4824-9ab4-cdb3ef623bec",
+  "accounts_detail": {
+    "[MT5] Aksys 300749": "5%",
+    "[OZ] Starprime": "14.40%",
+    "[GUI] CFH": "44.70%",
+    "[MT5] GBE 800997": "15.17%"
+  }
+}

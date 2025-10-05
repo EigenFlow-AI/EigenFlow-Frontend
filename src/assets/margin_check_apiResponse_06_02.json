@@ -1,0 +1,18 @@
+{
+  "type": "interrupt",
+  "status": "awaiting_approval",
+  "interrupt_data": {
+    "type": "margin_check_approval",
+    "report": "<HEALTH_STATUS>\nOK - 2025-10-05 13:53:03\n</HEALTH_STATUS>\n\n<SUMMARY_METRICS>\n- 平均保证金水平: 19.82%\n- LP账户总数: 4\n- 最高保证金水平: 44.70% ([GUI] CFH)\n- 可释放保证金总额: 126,294.21 USD\n- 跨LP对冲机会数: 13\n- 推荐操作数: 3\n</SUMMARY_METRICS>\n\n<CRITICAL_ALERTS>\n• [GUI] CFH 账户保证金水平达44.70%，为当前最高，建议优先处理对冲以降低风险\n• 存在重大跨LP对冲机会：USDJPY跨[GUI] CFH与[MT5] GBE可释放超10万美元保证金\n• [MT5] Aksys 300749与[OZ] Starprime在XAUUSD上存在849手对冲机会，可释放2,328.53美元保证金\n</CRITICAL_ALERTS>\n\n<PRIORITY_RECOMMENDATIONS>\n1. **P0 (Critical) - 清理USDJPY跨LP对冲头寸**\n   - 动作: 在[GUI] CFH与[MT5] GBE之间对冲200,000手USDJPY\n   - 预期影响: 释放109,907.96美元保证金\n   - 理由: 这是最大单一可释放保证金机会，显著降低整体风险敞口\n\n2. **P0 (Critical) - 清理AUDUSD跨LP对冲头寸**\n   - 动作: 在[GUI] CFH与[MT5] GBE之间对冲11,000手AUDUSD\n   - 预期影响: 释放6,044.94美元保证金\n   - 理由: 高效释放保证金且交易量匹配完美，无残余风险\n\n3. **P0 (Critical) - 清理NZDUSD跨LP对冲头寸**\n   - 动作: 在[GUI] CFH与[MT5] GBE之间对冲6,000手NZDUSD\n   - 预期影响: 释放3,297.24美元保证金\n   - 理由: 完全匹配的对冲机会，快速降低双边风险\n</PRIORITY_RECOMMENDATIONS>\n\n<DETAILED_ANALYSIS>\n当前所有LP账户保证金水平均处于安全范围（最低15.17%，最高44.70%），远低于80%的预警线，整体风险可控。\n\n关键优化机会集中在跨LP对冲清理：\n- 最大机会为USDJPY在[GUI] CFH与[MT5] GBE之间的20万手对冲，可释放109,907.96美元\n- 多个货币对存在完全匹配的对冲机会（如AUDUSD、NZDUSD、XPDUSD等），适合立即执行\n- XAUUSD存在多个对冲机会，其中[MT5] Aksys与[OZ] Starprime间的849手对冲可释放2,328.53美元\n\n建议立即执行P0级别的跨LP对冲操作，可合计释放约119,250.14美元保证金，进一步优化资本效率。所有推荐操作均为零净头寸调整，不增加市场风险。\n</DETAILED_ANALYSIS>",
+    "question": "Please review the margin analysis report above. You can:\n1. Enter feedback/comments to continue discussion\n2. Leave empty to end the session",
+    "trace_id": "e6c6e9da-1939-43d9-a9e0-d2cf8e6dd60c",
+    "card_id": "89a48edb-9ae0-411f-863b-93601d19e74a"
+  },
+  "thread_id": "89a48edb-9ae0-411f-863b-93601d19e74a",
+  "accounts_detail": {
+    "[MT5] GBE 800997": "15.17%",
+    "[MT5] Aksys 300749": "5%",
+    "[OZ] Starprime": "14.40%",
+    "[GUI] CFH": "44.70%"
+  }
+}

@@ -71,6 +71,7 @@ export interface MarginReport {
   timestamp: string;
   avgMarginLevel: number;
   lpCount: number;
+  accountsDetail?: Record<string, string>;
   sections: ReportSection[];
   actions: ReportAction[];
 }

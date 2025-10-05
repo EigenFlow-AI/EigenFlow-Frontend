@@ -8,7 +8,8 @@ import { downloadJSON } from "@/utils/download";
 // Create simple MarginReport from API response
 const createReportFromApiResponse = (
   reportText: string,
-  threadId: string
+  threadId: string,
+  accountsDetail?: Record<string, string>
 ): MarginReport => {
   // Determine status based on content
   let status: StatusType = "ok";
@@ -28,6 +29,7 @@ const createReportFromApiResponse = (
     }),
     avgMarginLevel: 0,
     lpCount: 0,
+    accountsDetail,
     sections: [
       {
         id: "report_content",
@@ -78,8 +80,9 @@ export const useMarginCheckStore = create<MarginCheckState>((set, get) => ({
         requestBody
       );
       const apiResponse = response.data;
-      downloadJSON(apiResponse, "margin_check_apiResponse.json");
+      // download apiResponse to assets/margin_check_apiResponse.json
       console.log("margin check apiResponse", apiResponse);
+      downloadJSON(apiResponse, "margin_check_apiResponse.json");
 
       // Handle different response types
       if (
@@ -88,7 +91,8 @@ export const useMarginCheckStore = create<MarginCheckState>((set, get) => ({
       ) {
         const report = createReportFromApiResponse(
           apiResponse.interrupt_data.report,
-          apiResponse.thread_id
+          apiResponse.thread_id,
+          apiResponse.accounts_detail
         );
         set({ marginReport: report });
         // 使用 uiStore 来控制弹窗显示
