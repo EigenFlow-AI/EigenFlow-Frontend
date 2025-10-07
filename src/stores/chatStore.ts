@@ -8,7 +8,7 @@ interface ChatState {
   handleChatSend: (message: string) => Promise<void>;
 }
 
-export const useChatStore = create<ChatState>((set, get) => ({
+export const useChatStore = create<ChatState>((set) => ({
   isChatOpen: false,
 
   setIsChatOpen: (open: boolean) => set({ isChatOpen: open }),

@@ -53,6 +53,7 @@ export const lpData: LPData[] = [
 // Mock Margin Report Data
 export const mockMarginReport: MarginReport = {
   cardId: "report_001",
+  threadId: "thread_001",
   status: "critical",
   title: "LP Margin Health Check",
   timestamp: new Date().toLocaleTimeString([], {
