@@ -3,7 +3,7 @@ import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import type { MarginReport, StatusType } from "@/types";
 import { useUIStore } from "./uiStore";
-import { downloadJSON } from "@/utils/download";
+// import { downloadJSON } from "@/utils/download";
 import { BASE_URL } from "@/services/api";
 
 // Create simple MarginReport from API response
@@ -87,7 +87,7 @@ export const useMarginCheckStore = create<MarginCheckState>((set, get) => ({
       const apiResponse = response.data;
       // download apiResponse to assets/margin_check_apiResponse.json
       console.log("margin check apiResponse", apiResponse);
-      downloadJSON(apiResponse, "margin_check_apiResponse.json");
+      // downloadJSON(apiResponse, "margin_check_apiResponse.json");
 
       // Handle different response types
       if (

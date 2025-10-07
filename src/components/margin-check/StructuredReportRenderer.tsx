@@ -169,7 +169,9 @@ export function StructuredReportRenderer({
             <AlertTriangle className="w-5 h-5 text-yellow-600" />
             <h3 className="text-lg font-semibold text-gray-900">关键警报</h3>
           </div>
-          {MarkdownRendererPresets.full(toHardBreaks(sections.critical_alerts))}
+          {MarkdownRendererPresets.report(
+            toHardBreaks(sections.critical_alerts)
+          )}
         </div>
       )}
 
@@ -180,7 +182,7 @@ export function StructuredReportRenderer({
             <CheckCircle className="w-5 h-5 text-green-600" />
             <h3 className="text-lg font-semibold text-gray-900">优先建议</h3>
           </div>
-          {MarkdownRendererPresets.report(
+          {MarkdownRendererPresets.full(
             toHardBreaks(
               preprocessRecommendations(sections.priority_recommendations)
             )
