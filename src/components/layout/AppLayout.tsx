@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Header, Sidebar, RightSidebar, MobileBottomNav } from "./index";
 import { FloatingChatWindow } from "../chat";
-import { MarginReportModal } from "../app/MarginReportModal";
+import { MarginReportModal } from "../margin-check/MarginReportModal";
 import { AlertCardDialog } from "../app/AlertCardDialog";
 import { AlertMessagesDrawer } from "../app/AlertMessagesDrawer";
 import { AppRoutes } from "../router/AppRoutes";

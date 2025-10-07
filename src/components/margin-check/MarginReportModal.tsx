@@ -69,9 +69,6 @@ export function MarginReportModal() {
                 <DialogTitle className="text-xl font-bold">
                   {marginCheck.marginReport.title}
                 </DialogTitle>
-                <DialogDescription className="text-sm text-gray-600">
-                  Generated at {marginCheck.marginReport.timestamp}
-                </DialogDescription>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -81,32 +78,69 @@ export function MarginReportModal() {
                 )}`}>
                 {getStatusText(marginCheck.marginReport.status)}
               </span>
+              <DialogDescription className="text-sm text-gray-600 mr-3">
+                {marginCheck.marginReport.timestamp}
+              </DialogDescription>
             </div>
           </div>
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Summary Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">
-                {marginCheck.marginReport.avgMarginLevel}%
+          {/* Accounts Detail (new) */}
+          {marginCheck.marginReport.accountsDetail && (
+            <div className="p-4 bg-white border border-gray-200 rounded-lg">
+              <h3 className="text-base font-semibold text-gray-900 mb-3">
+                Accounts Detail
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                {Object.entries(marginCheck.marginReport.accountsDetail).map(
+                  ([account, percent]) => {
+                    const value = parseFloat(String(percent).replace(/%/g, ""));
+                    return (
+                      <div
+                        key={account}
+                        className="rounded-lg border border-gray-100 p-3 bg-gray-50">
+                        <div
+                          className="text-xs text-gray-600 truncate mb-2"
+                          title={account}>
+                          {account}
+                        </div>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-sm font-medium text-gray-900">
+                            {percent}
+                          </span>
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                              value >= 80
+                                ? "bg-red-100 text-red-800"
+                                : value >= 60
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-green-100 text-green-800"
+                            }`}>
+                            {value >= 80 ? "High" : value >= 60 ? "Warn" : "OK"}
+                          </span>
+                        </div>
+                        <div className="h-2 w-full bg-white rounded overflow-hidden border border-gray-200">
+                          <div
+                            className={`h-full ${
+                              value >= 80
+                                ? "bg-red-500"
+                                : value >= 60
+                                ? "bg-yellow-500"
+                                : "bg-green-500"
+                            }`}
+                            style={{
+                              width: `${Math.min(Math.max(value, 0), 100)}%`,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  }
+                )}
               </div>
-              <div className="text-sm text-gray-600">Avg Margin Level</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">
-                {marginCheck.marginReport.lpCount}
-              </div>
-              <div className="text-sm text-gray-600">LP Count</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">
-                {marginCheck.marginReport.cardId}
-              </div>
-              <div className="text-sm text-gray-600">Report ID</div>
-            </div>
-          </div>
+          )}
 
           {/* Report Content */}
           <div className="space-y-4">
@@ -145,8 +179,19 @@ export function MarginReportModal() {
                   action.type === "primary"
                     ? "bg-blue-600 hover:bg-blue-700"
                     : ""
+                }
+                disabled={
+                  action.id === "recheck" &&
+                  useMarginCheckStore.getState().isRechecking
                 }>
-                {action.label}
+                {action.id === "recheck" && marginCheck.isRechecking ? (
+                  <span className="inline-flex items-center gap-2">
+                    <span className="h-4 w-4 border-2 border-white/60 border-t-white rounded-full animate-spin" />
+                    Re-checking...
+                  </span>
+                ) : (
+                  action.label
+                )}
               </Button>
             ))}
           </div>

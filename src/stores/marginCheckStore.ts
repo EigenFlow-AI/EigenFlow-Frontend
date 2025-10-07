@@ -3,12 +3,14 @@ import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import type { MarginReport, StatusType } from "@/types";
 import { useUIStore } from "./uiStore";
-import { downloadJSON } from "@/utils/download";
+// import { downloadJSON } from "@/utils/download";
+import { BASE_URL } from "@/services/api";
 
 // Create simple MarginReport from API response
 const createReportFromApiResponse = (
   reportText: string,
-  threadId: string
+  threadId: string,
+  accountsDetail?: Record<string, string>
 ): MarginReport => {
   // Determine status based on content
   let status: StatusType = "ok";
@@ -25,9 +27,12 @@ const createReportFromApiResponse = (
     timestamp: new Date().toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
+      hour12: true,
     }),
     avgMarginLevel: 0,
     lpCount: 0,
+    threadId: threadId,
+    accountsDetail,
     sections: [
       {
         id: "report_content",
@@ -56,6 +61,7 @@ const createReportFromApiResponse = (
 interface MarginCheckState {
   marginReport: MarginReport | null;
   isLoading: boolean;
+  isRechecking: boolean;
   handleQuickCheck: () => Promise<void>;
   handleActionClick: (actionId: string) => Promise<void>;
   setMarginReport: (report: MarginReport | null) => void;
@@ -65,6 +71,7 @@ interface MarginCheckState {
 export const useMarginCheckStore = create<MarginCheckState>((set, get) => ({
   marginReport: null,
   isLoading: false,
+  isRechecking: false,
 
   handleQuickCheck: async () => {
     set({ isLoading: true });
@@ -74,12 +81,13 @@ export const useMarginCheckStore = create<MarginCheckState>((set, get) => ({
       };
 
       const response = await axios.post(
-        "http://0.0.0.0:8001/agent/margin-check",
+        `${BASE_URL}/agent/margin-check`,
         requestBody
       );
       const apiResponse = response.data;
-      downloadJSON(apiResponse, "margin_check_apiResponse.json");
+      // download apiResponse to assets/margin_check_apiResponse.json
       console.log("margin check apiResponse", apiResponse);
+      // downloadJSON(apiResponse, "margin_check_apiResponse.json");
 
       // Handle different response types
       if (
@@ -88,7 +96,8 @@ export const useMarginCheckStore = create<MarginCheckState>((set, get) => ({
       ) {
         const report = createReportFromApiResponse(
           apiResponse.interrupt_data.report,
-          apiResponse.thread_id
+          apiResponse.thread_id,
+          apiResponse.accounts_detail
         );
         set({ marginReport: report });
         // 使用 uiStore 来控制弹窗显示
@@ -200,10 +209,40 @@ export const useMarginCheckStore = create<MarginCheckState>((set, get) => ({
         break;
       case "recheck":
         try {
-          // TODO: Implement recheck status API call
+          set({ isRechecking: true });
+          const req_body = {
+            thread_id: marginReport.threadId,
+          };
+          const response = await axios.post(
+            `${BASE_URL}/agent/margin-check/recheck`,
+            req_body
+          );
+          const apiResponse = response.data;
           console.log("Recheck status for:", marginReport.cardId);
+          console.log("Recheck status apiResponse", apiResponse);
+
+          if (
+            apiResponse.type === "interrupt" &&
+            apiResponse.interrupt_data?.report
+          ) {
+            const report = createReportFromApiResponse(
+              apiResponse.interrupt_data.report,
+              apiResponse.thread_id || marginReport.cardId,
+              apiResponse.accounts_detail
+            );
+            set({ marginReport: report });
+          } else if (apiResponse.type === "complete" && apiResponse.content) {
+            const report = createReportFromApiResponse(
+              apiResponse.content,
+              apiResponse.thread_id || marginReport.cardId,
+              apiResponse.accounts_detail
+            );
+            set({ marginReport: report });
+          }
         } catch (error) {
           console.error("Failed to recheck status:", error);
+        } finally {
+          set({ isRechecking: false });
         }
         break;
       case "export":
