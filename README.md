@@ -4,8 +4,10 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8.3-blue.svg)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-7.1.2-purple.svg)](https://vitejs.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.1.13-blue.svg)](https://tailwindcss.com/)
+[![Python](https://img.shields.io/badge/Python-3.11+-green.svg)](https://python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com/)
 
-A modern trading dashboard application built with React, TypeScript, and cutting-edge web technologies. This application provides comprehensive financial analytics, real-time monitoring, and interactive charting capabilities for trading operations.
+A comprehensive trading platform combining a modern React frontend with an intelligent Python backend. This full-stack application provides real-time margin analysis, AI-powered recommendations, and comprehensive financial monitoring for trading operations.
 
 ## 🚀 Features
 
@@ -30,6 +32,8 @@ A modern trading dashboard application built with React, TypeScript, and cutting
 - **AI Chat Interface**: Intelligent trading assistant with contextual responses
 - **Floating Chat Window**: Persistent AI support across all pages
 - **Margin Check AI**: Automated margin analysis and recommendations
+- **LangGraph Agent**: Advanced AI agent for complex trading decisions
+- **Real-time Analysis**: Live margin monitoring with intelligent alerts
 
 ### 🔔 **Alert System**
 
@@ -51,6 +55,15 @@ A modern trading dashboard application built with React, TypeScript, and cutting
 - **React 19.1.1**: Latest React with concurrent features
 - **TypeScript 5.8.3**: Type-safe development
 - **Vite 7.1.2**: Lightning-fast build tool and dev server
+- **React Router DOM 7.9.3**: Modern routing with data loading
+
+### **Backend Framework**
+
+- **Python 3.11+**: Modern Python with async support
+- **FastAPI**: High-performance async web framework
+- **LangGraph**: Advanced AI agent framework
+- **LangChain**: AI application development framework
+- **PostgreSQL**: Robust relational database with async support
 
 ### **Styling & UI**
 
@@ -66,56 +79,130 @@ A modern trading dashboard application built with React, TypeScript, and cutting
 
 ### **State & Interaction**
 
-- **React Hooks**: Modern state management with useState, useEffect
+- **Zustand 5.0.8**: Lightweight state management
 - **React Resizable Panels**: Flexible layout management
 - **Vaul**: Smooth drawer components
+- **React Markdown**: Rich text rendering with math support
+
+### **AI & Machine Learning**
+
+- **LangGraph**: Multi-agent AI workflows
+- **LangChain**: LLM application framework
+- **OpenAI Integration**: GPT models for intelligent analysis
+- **Google GenAI**: Alternative AI provider support
 
 ### **Developer Experience**
 
 - **ESLint**: Code quality and consistency
 - **TypeScript ESLint**: TypeScript-specific linting rules
 - **PostCSS**: CSS processing and optimization
+- **Pytest**: Python testing framework
 
 ## 📁 Project Structure
 
 ```
-src/
-├── components/
-│   ├── app/                 # Application-specific components
-│   │   ├── AIChatArea.tsx   # AI chat interface
-│   │   ├── AlertCardDialog.tsx
-│   │   ├── MarginCheckCard.tsx
-│   │   └── UserAvatar.tsx
-│   ├── chat/                # Chat system components
-│   │   ├── ChatInterface.tsx
-│   │   ├── FloatingChatWindow.tsx
-│   │   └── ChatMessage.tsx
-│   ├── layout/              # Layout components
-│   │   ├── Header.tsx
-│   │   ├── Sidebar.tsx
-│   │   └── MobileBottomNav.tsx
-│   ├── lp-margin/           # LP margin components
-│   │   ├── LPMarginTable.tsx
-│   │   └── MarginHealthCard.tsx
-│   ├── pages/               # Page components
-│   │   ├── DashboardPage.tsx
-│   │   ├── MonitorPage.tsx
-│   │   ├── ConfigPage.tsx
-│   │   └── HealthCenter.tsx
-│   └── ui/                  # shadcn/ui components
-│       ├── chart.tsx        # Chart components
-│       ├── button.tsx
-│       ├── card.tsx
-│       └── ...
-├── data/
-│   └── mockData.ts          # Mock data for development
-├── lib/
-│   └── utils.ts             # Utility functions
-├── services/
-│   └── marginCheckApi.ts    # API service layer
-├── types/
-│   └── index.ts             # TypeScript type definitions
-└── assets/                  # Static assets
+EigenFlowDemo/
+├── src/                     # Frontend React Application
+│   ├── components/
+│   │   ├── app/             # Application-specific components
+│   │   │   ├── AIChatArea.tsx
+│   │   │   ├── AlertCardDialog.tsx
+│   │   │   ├── AlertMessagesDrawer.tsx
+│   │   │   ├── MarginCheckCard.tsx
+│   │   │   └── UserAvatar.tsx
+│   │   ├── chat/            # Chat system components
+│   │   │   ├── ChatInterface.tsx
+│   │   │   ├── FloatingChatWindow.tsx
+│   │   │   ├── ChatMessage.tsx
+│   │   │   └── ChatTypes.ts
+│   │   ├── examples/        # Example components
+│   │   │   └── MarkdownRendererExamples.tsx
+│   │   ├── layout/          # Layout components
+│   │   │   ├── Header.tsx
+│   │   │   ├── Sidebar.tsx
+│   │   │   ├── AppLayout.tsx
+│   │   │   ├── MobileBottomNav.tsx
+│   │   │   └── index.ts
+│   │   ├── lp-margin/       # LP margin components
+│   │   │   ├── LPMarginTable.tsx
+│   │   │   ├── MarginHealthCard.tsx
+│   │   │   └── MarginTypes.ts
+│   │   ├── margin-check/    # Margin check components
+│   │   │   ├── MarginReportModal.tsx
+│   │   │   └── StructuredReportRenderer.tsx
+│   │   ├── pages/           # Page components
+│   │   │   ├── DashboardPage.tsx
+│   │   │   ├── MonitorPage.tsx
+│   │   │   ├── ConfigPage.tsx
+│   │   │   ├── HealthCenter.tsx
+│   │   │   └── HomePage.tsx
+│   │   ├── router/          # Routing components
+│   │   │   └── AppRouter.tsx
+│   │   └── ui/              # shadcn/ui components
+│   │       ├── chart.tsx
+│   │       ├── button.tsx
+│   │       ├── card.tsx
+│   │       ├── MarkdownRenderer.tsx
+│   │       └── ...
+│   ├── contexts/            # React contexts
+│   ├── data/
+│   │   └── mockData.ts      # Mock data for development
+│   ├── hooks/
+│   │   └── useNavigation.ts # Custom React hooks
+│   ├── lib/
+│   │   └── utils.ts         # Utility functions
+│   ├── services/
+│   │   ├── api.tsx          # Main API service
+│   │   └── marginCheckApi.ts # Margin check API
+│   ├── stores/              # Zustand state management
+│   │   ├── alertsStore.ts
+│   │   ├── chatStore.ts
+│   │   ├── marginCheckStore.ts
+│   │   ├── navigationStore.ts
+│   │   ├── uiStore.ts
+│   │   └── index.ts
+│   ├── types/
+│   │   └── index.ts         # TypeScript type definitions
+│   ├── utils/
+│   │   └── download.ts      # Utility functions
+│   └── assets/              # Static assets
+│       ├── brand3-1.svg
+│       └── *.json           # Sample API responses
+├── eigenflow/               # Backend Python Application
+│   ├── src/
+│   │   ├── agent/           # AI Agent components
+│   │   │   ├── configuration.py
+│   │   │   ├── data_gateway.py
+│   │   │   ├── graph.py
+│   │   │   ├── margin_tools.py
+│   │   │   ├── prompts.py
+│   │   │   ├── schemas.py
+│   │   │   ├── state.py
+│   │   │   └── utils.py
+│   │   ├── api/             # FastAPI application
+│   │   │   ├── app.py
+│   │   │   ├── graph.py
+│   │   │   └── models.py
+│   │   ├── db/              # Database layer
+│   │   │   ├── checkpoints.py
+│   │   │   ├── database.py
+│   │   │   ├── memory_store.py
+│   │   │   ├── models/
+│   │   │   └── tortoise_config.py
+│   │   ├── utils/
+│   │   │   └── institution_mapping.py
+│   │   └── main.py          # Application entry point
+│   ├── alert_service/       # Alert service module
+│   │   ├── config/
+│   │   ├── routers/
+│   │   └── schema/
+│   ├── tests/               # Test files
+│   ├── supabase/            # Supabase integration
+│   ├── pyproject.toml       # Python dependencies
+│   └── langgraph.json       # LangGraph configuration
+├── public/                  # Static public assets
+├── dist/                    # Production build output
+└── package.json             # Node.js dependencies
 ```
 
 ## 🚦 Getting Started
@@ -123,6 +210,8 @@ src/
 ### Prerequisites
 
 - **Node.js** 18+
+- **Python** 3.11+
+- **PostgreSQL** 13+ (for backend)
 - **npm** or **yarn** or **pnpm**
 
 ### Installation
@@ -134,29 +223,67 @@ src/
    cd EigenFlowDemo
    ```
 
-2. **Install dependencies**
+2. **Install Frontend Dependencies**
 
    ```bash
    npm install
    ```
 
-3. **Start development server**
+3. **Install Backend Dependencies**
+
+   ```bash
+   cd eigenflow
+   pip install -e .
+   ```
+
+4. **Environment Setup**
+
+   Create environment files for both frontend and backend:
+
+   ```bash
+   # Frontend (.env)
+   VITE_API_URL=http://localhost:8001
+
+   # Backend (eigenflow/.env)
+   EIGENFLOW_EMAIL=your_email@example.com
+   EIGENFLOW_PASSWORD=your_password
+   EIGENFLOW_BROKER=your_broker_value
+   DATABASE_URL=postgresql://username:password@localhost:5432/eigenflow
+   ```
+
+### Development
+
+1. **Start Backend Server**
+
+   ```bash
+   cd eigenflow
+   python src/main.py
+   ```
+
+   Backend will be available at: `http://localhost:8001`
+
+2. **Start Frontend Development Server**
 
    ```bash
    npm run dev
    ```
 
-4. **Open in browser**
-   ```
-   http://localhost:5174
-   ```
+   Frontend will be available at: `http://localhost:5174`
 
 ### Available Scripts
+
+#### Frontend Scripts
 
 - `npm run dev` - Start development server with hot reload
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build locally
 - `npm run lint` - Run ESLint for code quality checks
+
+#### Backend Scripts
+
+- `python src/main.py` - Start FastAPI server
+- `pytest` - Run Python tests
+- `make install` - Install dependencies (if Makefile available)
 
 ## 📊 Key Components
 
@@ -181,9 +308,20 @@ Dynamic alert system with:
 
 ### AI Chat Integration
 
-- Contextual chat interface
+- Contextual chat interface with LangGraph agents
 - Floating window for persistent access
 - Margin analysis and recommendations
+- Real-time AI-powered trading insights
+- Multi-agent workflow support
+
+### Backend API Features
+
+- **Margin Check API**: Real-time LP margin analysis and risk assessment
+- **AI Agent System**: LangGraph-powered intelligent trading assistant
+- **Database Integration**: PostgreSQL with async ORM support
+- **Alert Service**: Configurable alert management system
+- **External API Integration**: EigenFlow API for real-time trading data
+- **RESTful API**: FastAPI-based high-performance endpoints
 
 ## 🎨 Design System
 
@@ -216,6 +354,8 @@ Strict TypeScript setup with:
 
 ## 🚀 Deployment
 
+### Frontend Deployment
+
 1. **Build the project**
 
    ```bash
@@ -228,7 +368,41 @@ Strict TypeScript setup with:
    npm run preview
    ```
 
-3. **Deploy** the `dist` folder to your hosting platform
+3. **Deploy** the `dist` folder to your hosting platform (Vercel, Netlify, etc.)
+
+### Backend Deployment
+
+1. **Build Python package**
+
+   ```bash
+   cd eigenflow
+   pip install -e .
+   ```
+
+2. **Deploy to cloud platform**
+
+   - **AWS**: Use Lambda, ECS, or EC2
+   - **Google Cloud**: Use Cloud Run or App Engine
+   - **Azure**: Use Container Instances or App Service
+   - **Docker**: Use the provided Docker configuration
+
+3. **Environment Variables**
+
+   Ensure all required environment variables are set:
+
+   - `EIGENFLOW_EMAIL`
+   - `EIGENFLOW_PASSWORD`
+   - `EIGENFLOW_BROKER`
+   - `DATABASE_URL`
+
+### Full-Stack Deployment
+
+For production deployment, consider:
+
+- Using Docker Compose for local development
+- Setting up CI/CD pipelines
+- Configuring load balancers for high availability
+- Implementing proper logging and monitoring
 
 ## 🤝 Contributing
 
@@ -244,13 +418,30 @@ This project is private and confidential.
 
 ## 🔗 Related Technologies
 
+### Frontend
+
 - [React Documentation](https://react.dev/)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
 - [Vite Guide](https://vitejs.dev/guide/)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
 - [shadcn/ui Components](https://ui.shadcn.com/)
 - [Recharts Documentation](https://recharts.org/en-US/)
+- [Zustand Documentation](https://zustand-demo.pmnd.rs/)
+
+### Backend
+
+- [FastAPI Documentation](https://fastapi.tiangolo.com/)
+- [LangGraph Documentation](https://langchain-ai.github.io/langgraph/)
+- [LangChain Documentation](https://python.langchain.com/)
+- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
+- [Python AsyncIO](https://docs.python.org/3/library/asyncio.html)
+
+### AI & Machine Learning
+
+- [OpenAI API Documentation](https://platform.openai.com/docs)
+- [Google Generative AI](https://ai.google.dev/docs)
+- [LangChain Agents](https://python.langchain.com/docs/modules/agents/)
 
 ---
 
-Built with ❤️ for modern trading operations
+Built with ❤️ for modern trading operations and AI-powered financial analysis
