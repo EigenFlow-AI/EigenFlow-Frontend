@@ -69,9 +69,6 @@ export function MarginReportModal() {
                 <DialogTitle className="text-xl font-bold">
                   {marginCheck.marginReport.title}
                 </DialogTitle>
-                <DialogDescription className="text-sm text-gray-600">
-                  Generated at {marginCheck.marginReport.timestamp}
-                </DialogDescription>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -81,6 +78,9 @@ export function MarginReportModal() {
                 )}`}>
                 {getStatusText(marginCheck.marginReport.status)}
               </span>
+              <DialogDescription className="text-sm text-gray-600 mr-3">
+                {marginCheck.marginReport.timestamp}
+              </DialogDescription>
             </div>
           </div>
         </DialogHeader>
@@ -179,8 +179,19 @@ export function MarginReportModal() {
                   action.type === "primary"
                     ? "bg-blue-600 hover:bg-blue-700"
                     : ""
+                }
+                disabled={
+                  action.id === "recheck" &&
+                  useMarginCheckStore.getState().isRechecking
                 }>
-                {action.label}
+                {action.id === "recheck" && marginCheck.isRechecking ? (
+                  <span className="inline-flex items-center gap-2">
+                    <span className="h-4 w-4 border-2 border-white/60 border-t-white rounded-full animate-spin" />
+                    Re-checking...
+                  </span>
+                ) : (
+                  action.label
+                )}
               </Button>
             ))}
           </div>

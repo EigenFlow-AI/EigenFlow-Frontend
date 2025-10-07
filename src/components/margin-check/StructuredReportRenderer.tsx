@@ -1,5 +1,8 @@
-import ReactMarkdown from "react-markdown";
 import { CheckCircle, AlertTriangle, XCircle, BarChart3 } from "lucide-react";
+import {
+  MarkdownRenderer,
+  MarkdownRendererPresets,
+} from "@/components/ui/MarkdownRenderer";
 
 interface StructuredReportRendererProps {
   content: string;
@@ -8,6 +11,19 @@ interface StructuredReportRendererProps {
 export function StructuredReportRenderer({
   content,
 }: StructuredReportRendererProps) {
+  // 将单个换行转换为 Markdown 硬换行，保证按行渲染
+  const toHardBreaks = (text: string) => text.replace(/\n/g, "  \n");
+  // 预处理优先建议文本：为每个 Pn 段落添加空行，并将标签转为加粗的列表项
+  const preprocessRecommendations = (text: string) => {
+    let s = text.trim();
+    // 在以 P0/P1/P2 开头的行前插入一个空行
+    s = s.replace(/(^|\n)(P\d+\s*\([^\n]*\)\s*-?)/g, "$1\n$2");
+    // 将标签转为加粗的列表项
+    s = s.replace(/^\s*动作\s*:/gm, "- **动作**:");
+    s = s.replace(/^\s*预期影响\s*:/gm, "- **预期影响**:");
+    s = s.replace(/^\s*理由\s*:/gm, "- **理由**:");
+    return s;
+  };
   // 解析报告内容
   const parseReport = (text: string) => {
     const sections: { [key: string]: string } = {};
@@ -153,9 +169,7 @@ export function StructuredReportRenderer({
             <AlertTriangle className="w-5 h-5 text-yellow-600" />
             <h3 className="text-lg font-semibold text-gray-900">关键警报</h3>
           </div>
-          <div className="prose prose-sm max-w-none text-gray-800">
-            <ReactMarkdown>{sections.critical_alerts}</ReactMarkdown>
-          </div>
+          {MarkdownRendererPresets.full(toHardBreaks(sections.critical_alerts))}
         </div>
       )}
 
@@ -166,9 +180,11 @@ export function StructuredReportRenderer({
             <CheckCircle className="w-5 h-5 text-green-600" />
             <h3 className="text-lg font-semibold text-gray-900">优先建议</h3>
           </div>
-          <div className="prose prose-sm max-w-none text-gray-800">
-            <ReactMarkdown>{sections.priority_recommendations}</ReactMarkdown>
-          </div>
+          {MarkdownRendererPresets.report(
+            toHardBreaks(
+              preprocessRecommendations(sections.priority_recommendations)
+            )
+          )}
         </div>
       )}
 
@@ -179,9 +195,13 @@ export function StructuredReportRenderer({
             <BarChart3 className="w-5 h-5 text-blue-600" />
             <h3 className="text-lg font-semibold text-gray-900">详细分析</h3>
           </div>
-          <div className="text-gray-700 text-sm leading-relaxed prose prose-sm max-w-none">
-            <ReactMarkdown>{sections.detailed_analysis}</ReactMarkdown>
-          </div>
+          <MarkdownRenderer
+            content={toHardBreaks(sections.detailed_analysis)}
+            className="text-gray-700 text-sm leading-relaxed"
+            enableMath={true}
+            enableRawHtml={true}
+            enableGfm={true}
+          />
         </div>
       )}
     </div>
