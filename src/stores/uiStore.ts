@@ -26,7 +26,7 @@ interface UIState {
   closeMobileMenu: () => void;
 }
 
-export const useUIStore = create<UIState>((set, get) => ({
+export const useUIStore = create<UIState>((set) => ({
   // Mobile menu state
   isMobileMenuOpen: false,
   setIsMobileMenuOpen: (open: boolean) => set({ isMobileMenuOpen: open }),

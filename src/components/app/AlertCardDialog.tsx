@@ -6,7 +6,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import type { AlertMessage, StatusType } from "@/types";
+import type { StatusType } from "@/types";
 import { AlertTriangle, XCircle, CheckCircle } from "lucide-react";
 import { useUIStore, useAlertsStore } from "@/stores";
 
@@ -105,7 +105,7 @@ export function AlertCardDialog() {
           <div className="flex flex-wrap gap-3">
             <Button
               onClick={() => {
-                console.log("Recheck from dialog", alerts.activeAlert.id);
+                console.log("Recheck from dialog", alerts.activeAlert?.id);
                 ui.setIsAlertDialogOpen(false);
               }}
               className="bg-violet-600 hover:bg-violet-700">
@@ -114,18 +114,22 @@ export function AlertCardDialog() {
             <Button
               variant="outline"
               onClick={() => {
-                console.log("Details from dialog", alerts.activeAlert.id);
+                console.log("Details from dialog", alerts.activeAlert?.id);
               }}>
               Details
             </Button>
             <Button
               variant="ghost"
               onClick={() => {
-                alerts.setAlertMessages((prev) =>
-                  prev.map((x) =>
-                    x.id === alerts.activeAlert.id ? { ...x, isRead: true } : x
-                  )
-                );
+                if (alerts.activeAlert) {
+                  alerts.setAlertMessages((prev) =>
+                    prev.map((x) =>
+                      x.id === alerts.activeAlert!.id
+                        ? { ...x, isRead: true }
+                        : x
+                    )
+                  );
+                }
                 ui.setIsAlertDialogOpen(false);
               }}>
               Ignore

@@ -7,7 +7,7 @@ import {
   DrawerDescription,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { type AlertMessage, type StatusType } from "@/types";
+import { type StatusType } from "@/types";
 import { Clock, TrendingUp, Wifi, Shield } from "lucide-react";
 import { useUIStore, useAlertsStore } from "@/stores";
 
