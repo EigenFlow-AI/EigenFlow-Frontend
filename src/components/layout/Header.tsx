@@ -2,14 +2,6 @@ import { Bell, Menu, CheckCircle } from "lucide-react";
 import logo from "@/assets/brand3-1.svg";
 import { UserAvatar } from "@/components/app/UserAvatar";
 import { useUIStore, useMarginCheckStore, useUnreadAlertCount } from "@/stores";
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogHeader,
-//   DialogTitle,
-//   DialogTrigger,
-// } from "@/components/ui/dialog";
-// import mockApiResponse from "@/assets/assets_margin_check_apiResponse.json";
 
 export function Header() {
   const ui = useUIStore();
