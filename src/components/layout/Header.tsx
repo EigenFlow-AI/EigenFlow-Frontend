@@ -2,11 +2,14 @@ import { Bell, Menu, CheckCircle } from "lucide-react";
 import logo from "@/assets/brand3-1.svg";
 import { UserAvatar } from "@/components/app/UserAvatar";
 import { useUIStore, useMarginCheckStore, useUnreadAlertCount } from "@/stores";
+import { motion } from "framer-motion";
+import { useState } from "react";
 
 export function Header() {
   const ui = useUIStore();
   const marginCheck = useMarginCheckStore();
   const unreadAlertCount = useUnreadAlertCount();
+  const [active, setActive] = useState(false);
 
   const displayUnread = unreadAlertCount > 0 ? unreadAlertCount : 1;
   return (
@@ -47,6 +50,23 @@ export function Header() {
           </button>
 
           {/* Mock Data Dialog */}
+          {/* <motion.button
+            className="relative overflow-hidden bg-gradient-to-r from-green-500 to-blue-500 text-white px-6 py-3 rounded-2xl"
+            whileTap={{
+              scale: 0.95,
+              boxShadow: "0 0 25px rgba(0,255,200,0.6)",
+            }}
+            onClick={() => setActive(true)}>
+            Start Service
+            {active && (
+              <motion.span
+                className="absolute inset-0 bg-white/20 rounded-2xl"
+                initial={{ scale: 0, opacity: 0.8 }}
+                animate={{ scale: 4, opacity: 0 }}
+                transition={{ duration: 1 }}
+              />
+            )}
+          </motion.button> */}
 
           <button
             onClick={() => ui.setIsAlertsDrawerOpen(true)}
