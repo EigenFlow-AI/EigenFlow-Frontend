@@ -7,6 +7,7 @@ import { AlertCardDialog } from "../app/AlertCardDialog";
 import { AlertMessagesDrawer } from "../app/AlertMessagesDrawer";
 import { AppRoutes } from "../router/AppRoutes";
 import { useAlertsStore, useUIStore, useNavigationStore } from "../../stores";
+import { Toaster } from "../ui/sonner";
 import type { ViewType } from "../../types";
 
 export function AppLayout() {
@@ -101,6 +102,9 @@ export function AppLayout() {
 
       {/* PRD Alert Card Dialog */}
       <AlertCardDialog />
+
+      {/* Toast Notifications */}
+      <Toaster position="top-center" richColors duration={3000} theme="light" />
     </div>
   );
 }

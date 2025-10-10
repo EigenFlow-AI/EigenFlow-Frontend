@@ -153,7 +153,6 @@ export function AlertMessagesDrawer() {
                             </span>
                           </div>
                           <div className="w-full bg-gray-200 rounded-full h-1.5">
-                            {/* eslint-disable-next-line react/forbid-dom-props */}
                             <div
                               className={`h-1.5 rounded-full transition-all duration-300 ${
                                 alert.marginLevel >= alert.threshold
@@ -164,7 +163,6 @@ export function AlertMessagesDrawer() {
                               }`}
                               style={
                                 {
-                                  // @ts-ignore custom property for width
                                   "--progress-width": `${Math.min(
                                     alert.marginLevel || 0,
                                     100

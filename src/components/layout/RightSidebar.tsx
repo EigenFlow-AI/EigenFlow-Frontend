@@ -10,15 +10,107 @@ import {
 import { useUIStore } from "@/stores";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import axios from "axios";
+import { ALERT_URL } from "@/services/api";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export function RightSidebar() {
   const ui = useUIStore();
   const [isMonitoring, setIsMonitoring] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+
+  // useEffect(() => {
+  //   getAllCards();
+  // }, []);
+
+  async function getAllCards() {
+    try {
+      const response = await axios.get(`${ALERT_URL}/alert/cards`);
+      console.log("Card status:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Failed to get card status:", error);
+      return null;
+    }
+  }
+
+  async function handleMonitoring() {
+    if (isLoading) return; // Prevent multiple clicks during API call
+
+    setIsLoading(true);
+    try {
+      if (!isMonitoring) {
+        // Starting monitoring
+        console.log("Starting system health monitoring...");
+        try {
+          const response = await axios.post(
+            `${ALERT_URL}/alert/start-monitoring`
+          );
+          console.log("Monitoring started:", response.data);
+          getAllCards();
+          setIsMonitoring(true);
+
+          // Show success toast
+          toast.success("Monitoring Started", {
+            description:
+              "System health monitoring is now active. Redirecting to Health Center...",
+            duration: 3000,
+          });
+
+          // Navigate after a short delay to allow toast to show
+          setTimeout(() => {
+            navigate("/health-center");
+          }, 1500);
+        } catch (error) {
+          console.error("Failed to start monitoring:", error);
+          toast.error("Failed to Start Monitoring", {
+            description:
+              "Unable to start system health monitoring. Please try again.",
+            duration: 4000,
+          });
+          return;
+        }
+      } else {
+        // Stopping monitoring
+        console.log("Stopping system health monitoring...");
+        try {
+          const response = await axios.post(
+            `${ALERT_URL}/alert/stop-monitoring`
+          );
+          console.log("Monitoring stopped:", response.data);
+          setIsMonitoring(false);
+
+          // Show success toast
+          toast.warning("Monitoring Stopped", {
+            description:
+              "System health monitoring has been stopped successfully.",
+            duration: 3000,
+          });
+        } catch (error) {
+          console.error("Failed to stop monitoring:", error);
+          toast.error("Failed to Stop Monitoring", {
+            description:
+              "Unable to stop system health monitoring. Please try again.",
+            duration: 4000,
+          });
+          return;
+        }
+      }
+    } catch (error) {
+      console.error("Error handling monitoring:", error);
+      // Reset state on error
+      setIsMonitoring(false);
+      // Optionally show error message to user
+    } finally {
+      setIsLoading(false);
+    }
+  }
   return (
     <aside className="w-full flex flex-col p-3 lg:p-4 space-y-3 lg:space-y-4">
       {/* System Health Monitoring Card */}
       <motion.div
-        className="relative overflow-hidden rounded-xl p-4 text-white cursor-pointer"
         style={{
           background: isMonitoring
             ? "linear-gradient(135deg, #8b5cf6, #a855f7, #c084fc, #8b5cf6)"
@@ -41,13 +133,16 @@ export function RightSidebar() {
           repeat: isMonitoring ? Infinity : 0,
           ease: "easeInOut",
         }}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
+        whileHover={{ scale: isLoading ? 1 : 1.02 }}
+        whileTap={{ scale: isLoading ? 1 : 0.98 }}
         onClick={() => {
-          setIsMonitoring(!isMonitoring);
-          // Start monitoring alerts
-          console.log("Starting system health monitoring...");
-        }}>
+          if (!isLoading) {
+            handleMonitoring();
+          }
+        }}
+        className={`relative overflow-hidden rounded-xl p-4 text-white cursor-pointer ${
+          isLoading ? "cursor-wait opacity-75" : "cursor-pointer"
+        }`}>
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
@@ -82,7 +177,17 @@ export function RightSidebar() {
                 repeat: isMonitoring ? Infinity : 0,
                 ease: "easeInOut",
               }}>
-              {isMonitoring ? (
+              {isLoading ? (
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{
+                    duration: 1,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}>
+                  <Activity className="w-4 h-4 text-violet-200" />
+                </motion.div>
+              ) : isMonitoring ? (
                 <Pause className="w-4 h-4 text-violet-200" />
               ) : (
                 <Play className="w-4 h-4 text-violet-200" />
@@ -92,10 +197,18 @@ export function RightSidebar() {
 
           <div className="text-center">
             <p className="text-lg font-bold mb-2">
-              {isMonitoring ? "Monitoring Active" : "Start Health Monitoring"}
+              {isLoading
+                ? isMonitoring
+                  ? "Stopping..."
+                  : "Starting..."
+                : isMonitoring
+                ? "Monitoring Active"
+                : "Start Health Monitoring"}
             </p>
             <p className="text-xs text-violet-200 hover:text-white transition-colors">
-              {isMonitoring
+              {isLoading
+                ? "Please wait..."
+                : isMonitoring
                 ? "Click to stop monitoring"
                 : "Click to start monitoring"}
             </p>
