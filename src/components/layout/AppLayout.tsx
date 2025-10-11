@@ -104,7 +104,13 @@ export function AppLayout() {
       <AlertCardDialog />
 
       {/* Toast Notifications */}
-      <Toaster position="top-center" richColors duration={3000} theme="light" />
+      <Toaster
+        position="bottom-right"
+        richColors
+        duration={3000}
+        theme="light"
+        closeButton
+      />
     </div>
   );
 }

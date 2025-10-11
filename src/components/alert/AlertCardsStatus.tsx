@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   AlertTriangle,
   Shield,
@@ -7,6 +7,17 @@ import {
   XCircle,
 } from "lucide-react";
 import { useAlertCardsStore } from "@/stores/alertCardsStore";
+import { useUIStore } from "@/stores/uiStore";
+import { toast } from "sonner";
+import axios from "axios";
+import { ALERT_URL } from "@/services/api";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface AlertCard {
   id: string;
@@ -18,21 +29,141 @@ interface AlertCard {
   ignore_until: string | null;
 }
 
+interface AlertCardDetail {
+  id: string;
+  lp: string;
+  status: string;
+  threshold: number;
+  hysteresis_threshold: number;
+  margin_level: number;
+  created_at: string;
+  updated_at: string;
+  ignore_until: string | null;
+  thread_id: string;
+  last_notified_at: string;
+  notifications_sent: number;
+  last_margin_snapshot: {
+    LP: string;
+    Credit: number;
+    Equity: number;
+    Margin: number;
+    Balance: number;
+    updated_at: string;
+    "Free Margin": number;
+    "Unrealized P&L": number;
+    "Margin Utilization %": number;
+  };
+}
+
 export function AlertCardsStatus() {
   const { cards, isLoading, error, fetchCards } = useAlertCardsStore();
+  const { isMonitoring } = useUIStore();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [alertDialogOpen, setAlertDialogOpen] = useState(false);
+  const [alertCardDetail, setAlertCardDetail] =
+    useState<AlertCardDetail | null>(null);
+  const [processedAlerts, setProcessedAlerts] = useState<Set<string>>(
+    new Set()
+  );
+
+  const handleManualRefresh = async () => {
+    if (isRefreshing || isLoading) return;
+    setIsRefreshing(true);
+    try {
+      await fetchCards();
+      // Check margin alerts after manual refresh if monitoring is active
+      if (isMonitoring && cards.length > 0) {
+        await checkMarginAlerts();
+      }
+    } finally {
+      setTimeout(() => setIsRefreshing(false), 1000); // debounce 1s
+    }
+  };
+
+  // Check for margin level alerts
+  const checkMarginAlerts = useCallback(async () => {
+    const threshold = 10;
+    const alertCards = cards.filter((card) => card.margin_level > threshold);
+
+    for (const card of alertCards) {
+      // Skip if we already processed this alert in the current minute
+      if (processedAlerts.has(card.id)) {
+        continue;
+      }
+
+      try {
+        const response = await axios.get(`${ALERT_URL}/alert/cards/${card.id}`);
+        const cardDetail: AlertCardDetail = response.data;
+
+        // Mark this alert as processed
+        setProcessedAlerts((prev) => new Set(prev).add(card.id));
+
+        // Show persistent toast notification
+        const id = toast.error("Margin Alert", {
+          description: `${card.lp} margin level is ${card.margin_level.toFixed(
+            2
+          )}% (threshold: ${threshold}%)`,
+          duration: Infinity, // Persistent until dismissed
+          dismissible: true, // Allow clicking X to dismiss
+          action: {
+            label: "View Details",
+            onClick: () => {
+              setAlertCardDetail(cardDetail);
+              setAlertDialogOpen(true);
+              toast.dismiss(id);
+            },
+          },
+        });
+      } catch (error) {
+        console.error(
+          `Failed to fetch alert details for card ${card.id}:`,
+          error
+        );
+      }
+    }
+  }, [cards, processedAlerts]);
 
   useEffect(() => {
     // Initial fetch
+    console.log("AlertCardsStatus: Initial fetch triggered");
     fetchCards();
+  }, [fetchCards]);
 
-    // Set up interval to fetch every minute
-    const interval = setInterval(() => {
-      fetchCards();
+  // Set up polling when monitoring is active
+  useEffect(() => {
+    console.log("AlertCardsStatus: Monitoring state changed:", isMonitoring);
+    if (!isMonitoring) return;
+
+    console.log("AlertCardsStatus: Setting up polling interval");
+    const interval = setInterval(async () => {
+      console.log("AlertCardsStatus: Polling interval triggered");
+      await fetchCards();
+      // Check margin alerts after fetching cards
+      const currentCards = useAlertCardsStore.getState().cards;
+      console.log(
+        "AlertCardsStatus: Current cards count:",
+        currentCards.length
+      );
+      if (currentCards.length > 0) {
+        await checkMarginAlerts();
+      }
     }, 60000); // 60 seconds = 1 minute
 
-    // Cleanup interval on component unmount
-    return () => clearInterval(interval);
-  }, [fetchCards]);
+    // Cleanup interval on component unmount or when monitoring stops
+    return () => {
+      console.log("AlertCardsStatus: Cleaning up polling interval");
+      clearInterval(interval);
+    };
+  }, [isMonitoring, fetchCards, checkMarginAlerts]);
+
+  // Clear processed alerts every minute to allow re-processing
+  useEffect(() => {
+    const clearProcessedInterval = setInterval(() => {
+      setProcessedAlerts(new Set());
+    }, 60000); // Clear every minute
+
+    return () => clearInterval(clearProcessedInterval);
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -141,6 +272,16 @@ export function AlertCardsStatus() {
               {cards.length} Accounts
             </span>
             <span className="text-xs text-gray-400">Auto-refresh: 1min</span>
+            <button
+              onClick={handleManualRefresh}
+              disabled={isRefreshing || isLoading}
+              className={`px-3 py-1 rounded text-sm font-medium transition-colors border ${
+                isRefreshing || isLoading
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-violet-600 text-white hover:bg-violet-700 border-transparent"
+              }`}>
+              {isRefreshing || isLoading ? "Refreshing..." : "Refresh"}
+            </button>
           </div>
         </div>
       </div>
@@ -198,7 +339,6 @@ export function AlertCardsStatus() {
                             ? "bg-yellow-500"
                             : "bg-green-500"
                         }`}
-                        // eslint-disable-next-line react/forbid-dom-props
                         style={{
                           width: `${Math.min(card.margin_level, 100)}%`,
                         }}
@@ -256,6 +396,190 @@ export function AlertCardsStatus() {
           </div>
         )}
       </div>
+
+      {/* Alert Detail Dialog */}
+      <Dialog open={alertDialogOpen} onOpenChange={setAlertDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-red-600" />
+              Margin Alert Details
+            </DialogTitle>
+            <DialogDescription>
+              Detailed information about the margin alert
+            </DialogDescription>
+          </DialogHeader>
+
+          {alertCardDetail && (
+            <div className="space-y-6">
+              {/* Basic Info */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700">
+                    LP Account
+                  </label>
+                  <p className="text-sm text-gray-900">{alertCardDetail.lp}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">
+                    Status
+                  </label>
+                  <p className="text-sm text-gray-900">
+                    {alertCardDetail.status}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">
+                    Margin Level
+                  </label>
+                  <p className="text-sm text-red-600 font-semibold">
+                    {alertCardDetail.margin_level.toFixed(2)}%
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700">
+                    Threshold
+                  </label>
+                  <p className="text-sm text-gray-900">
+                    {alertCardDetail.threshold}%
+                  </p>
+                </div>
+              </div>
+
+              {/* Margin Snapshot */}
+              <div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-3">
+                  Last Margin Snapshot
+                </h4>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">
+                        Equity
+                      </label>
+                      <p className="text-sm text-gray-900">
+                        $
+                        {alertCardDetail.last_margin_snapshot.Equity.toLocaleString()}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">
+                        Balance
+                      </label>
+                      <p className="text-sm text-gray-900">
+                        $
+                        {alertCardDetail.last_margin_snapshot.Balance.toLocaleString()}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">
+                        Margin Used
+                      </label>
+                      <p className="text-sm text-gray-900">
+                        $
+                        {alertCardDetail.last_margin_snapshot.Margin.toLocaleString()}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">
+                        Free Margin
+                      </label>
+                      <p className="text-sm text-gray-900">
+                        $
+                        {alertCardDetail.last_margin_snapshot[
+                          "Free Margin"
+                        ].toLocaleString()}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">
+                        Unrealized P&L
+                      </label>
+                      <p
+                        className={`text-sm font-semibold ${
+                          alertCardDetail.last_margin_snapshot[
+                            "Unrealized P&L"
+                          ] >= 0
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }`}>
+                        $
+                        {alertCardDetail.last_margin_snapshot[
+                          "Unrealized P&L"
+                        ].toLocaleString()}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">
+                        Margin Utilization
+                      </label>
+                      <p className="text-sm text-red-600 font-semibold">
+                        {alertCardDetail.last_margin_snapshot[
+                          "Margin Utilization %"
+                        ].toFixed(2)}
+                        %
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-gray-200">
+                    <label className="text-sm font-medium text-gray-700">
+                      Last Updated
+                    </label>
+                    <p className="text-sm text-gray-600">
+                      {new Date(
+                        alertCardDetail.last_margin_snapshot.updated_at
+                      ).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Alert Info */}
+              <div>
+                <h4 className="text-lg font-semibold text-gray-900 mb-3">
+                  Alert Information
+                </h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Notifications Sent
+                    </label>
+                    <p className="text-sm text-gray-900">
+                      {alertCardDetail.notifications_sent}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Last Notified
+                    </label>
+                    <p className="text-sm text-gray-900">
+                      {new Date(
+                        alertCardDetail.last_notified_at
+                      ).toLocaleString()}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Thread ID
+                    </label>
+                    <p className="text-sm text-gray-600 font-mono">
+                      {alertCardDetail.thread_id}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Hysteresis Threshold
+                    </label>
+                    <p className="text-sm text-gray-900">
+                      {alertCardDetail.hysteresis_threshold}%
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

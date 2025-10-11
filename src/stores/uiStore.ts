@@ -11,6 +11,10 @@ interface UIState {
   setIsChatOpen: (open: boolean) => void;
   toggleChat: () => void;
 
+  // Monitoring state
+  isMonitoring: boolean;
+  setIsMonitoring: (monitoring: boolean) => void;
+
   // Modal states
   isMarginReportOpen: boolean;
   isAlertsDrawerOpen: boolean;
@@ -37,6 +41,10 @@ export const useUIStore = create<UIState>((set) => ({
   isChatOpen: false,
   setIsChatOpen: (open: boolean) => set({ isChatOpen: open }),
   toggleChat: () => set((state) => ({ isChatOpen: !state.isChatOpen })),
+
+  // Monitoring state
+  isMonitoring: false,
+  setIsMonitoring: (monitoring: boolean) => set({ isMonitoring: monitoring }),
 
   // Modal states
   isMarginReportOpen: false,

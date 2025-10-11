@@ -39,13 +39,18 @@ export const useAlertCardsStore = create<AlertCardsState>((set, get) => ({
   lastFetched: null,
 
   fetchCards: async () => {
+    console.log("AlertCardsStore: Starting fetchCards");
     set({ isLoading: true, error: null });
 
     try {
+      console.log(
+        "AlertCardsStore: Making API request to:",
+        `${ALERT_URL}/alert/cards`
+      );
       const response = await axios.get<AlertCardsResponse>(
         `${ALERT_URL}/alert/cards`
       );
-      // console.log("Alert cards fetched:", response.data);
+      console.log("AlertCardsStore: API response:", response.data);
 
       set({
         cards: response.data.cards,
@@ -53,8 +58,12 @@ export const useAlertCardsStore = create<AlertCardsState>((set, get) => ({
         error: null,
         lastFetched: new Date(),
       });
+      console.log(
+        "AlertCardsStore: Cards updated, count:",
+        response.data.cards.length
+      );
     } catch (error) {
-      console.error("Failed to fetch alert cards:", error);
+      console.error("AlertCardsStore: Failed to fetch alert cards:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Failed to fetch alert cards";
 

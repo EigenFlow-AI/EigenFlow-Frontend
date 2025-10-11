@@ -17,7 +17,7 @@ import { toast } from "sonner";
 
 export function RightSidebar() {
   const ui = useUIStore();
-  const [isMonitoring, setIsMonitoring] = useState(false);
+  const { isMonitoring, setIsMonitoring } = ui;
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 

@@ -5,6 +5,7 @@ import type { MarginReport, StatusType } from "@/types";
 import { useUIStore } from "./uiStore";
 // import { downloadJSON } from "@/utils/download";
 import { BASE_URL } from "@/services/api";
+import { toast } from "sonner";
 
 // Create simple MarginReport from API response
 const createReportFromApiResponse = (
@@ -75,6 +76,7 @@ export const useMarginCheckStore = create<MarginCheckState>((set, get) => ({
 
   handleQuickCheck: async () => {
     set({ isLoading: true });
+
     try {
       const requestBody = {
         thread_id: uuidv4(),
@@ -85,9 +87,14 @@ export const useMarginCheckStore = create<MarginCheckState>((set, get) => ({
         requestBody
       );
       const apiResponse = response.data;
-      // download apiResponse to assets/margin_check_apiResponse.json
       console.log("margin check apiResponse", apiResponse);
-      // downloadJSON(apiResponse, "margin_check_apiResponse.json");
+
+      // Show success toast
+      toast.success("Margin Check Started", {
+        description:
+          "Margin check request sent successfully. Processing results...",
+        duration: 3000,
+      });
 
       // Handle different response types
       if (
@@ -100,7 +107,6 @@ export const useMarginCheckStore = create<MarginCheckState>((set, get) => ({
           apiResponse.accounts_detail
         );
         set({ marginReport: report });
-        // 使用 uiStore 来控制弹窗显示
         useUIStore.getState().setIsMarginReportOpen(true);
       } else if (apiResponse.type === "complete" && apiResponse.content) {
         const report = createReportFromApiResponse(
@@ -108,14 +114,17 @@ export const useMarginCheckStore = create<MarginCheckState>((set, get) => ({
           apiResponse.thread_id
         );
         set({ marginReport: report });
-        // 使用 uiStore 来控制弹窗显示
         useUIStore.getState().setIsMarginReportOpen(true);
       } else if (apiResponse.type === "error") {
-        // 处理错误响应
+        // Handle API error response
         console.error("API returned error:", apiResponse);
         const errorMessage = apiResponse.error || "Unknown error occurred";
 
-        // 创建错误报告
+        toast.error("Margin Check Failed", {
+          description: `API Error: ${errorMessage}`,
+          duration: 4000,
+        });
+
         const errorReport = createReportFromApiResponse(
           `错误: ${errorMessage}\n\n请检查:\n1. 后端服务是否正常运行\n2. 网络连接是否正常\n3. 端口 8001 是否可访问`,
           apiResponse.thread_id || uuidv4()
@@ -125,7 +134,8 @@ export const useMarginCheckStore = create<MarginCheckState>((set, get) => ({
         useUIStore.getState().setIsMarginReportOpen(true);
       } else {
         console.warn("Unexpected response format:", apiResponse);
-        // 尝试处理其他可能的响应格式
+
+        // Try to handle other possible response formats
         if (apiResponse.report || apiResponse.content || apiResponse.message) {
           const reportText =
             apiResponse.report || apiResponse.content || apiResponse.message;
@@ -136,7 +146,12 @@ export const useMarginCheckStore = create<MarginCheckState>((set, get) => ({
           set({ marginReport: report });
           useUIStore.getState().setIsMarginReportOpen(true);
         } else {
-          // 完全未知的响应格式
+          // Completely unknown response format
+          toast.warning("Unexpected Response", {
+            description: "Received unknown response format from server",
+            duration: 4000,
+          });
+
           const unknownReport = createReportFromApiResponse(
             "收到未知格式的响应，请检查后端服务状态",
             apiResponse.thread_id || uuidv4()
@@ -149,7 +164,7 @@ export const useMarginCheckStore = create<MarginCheckState>((set, get) => ({
     } catch (error) {
       console.error("Failed to perform quick check:", error);
 
-      // 创建网络错误报告
+      // Get error message based on error type
       let errorMessage = "网络连接失败";
       let errorDetails = "请检查网络连接和后端服务状态";
 
@@ -171,6 +186,12 @@ export const useMarginCheckStore = create<MarginCheckState>((set, get) => ({
           errorDetails = "请检查网络连接";
         }
       }
+
+      // Show error toast
+      toast.error("Margin Check Failed", {
+        description: errorMessage,
+        duration: 4000,
+      });
 
       const networkErrorReport = createReportFromApiResponse(
         `${errorMessage}\n\n${errorDetails}\n\n错误详情: ${

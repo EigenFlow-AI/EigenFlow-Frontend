@@ -1,6 +1,5 @@
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
-import rehypeKatex from "rehype-katex";
 import gfm from "remark-gfm";
 import remarkMath from "remark-math";
 import type { Components } from "react-markdown";
@@ -188,7 +187,6 @@ export function MarkdownRenderer({
     rehypePlugins.push(rehypeRaw);
   }
   if (enableMath) {
-    rehypePlugins.push(rehypeKatex);
     remarkPlugins.push(remarkMath);
   }
   if (enableGfm) {
